@@ -27,31 +27,24 @@ int main(int argc, char **argv)
         int i;
         for (i=0; i < strlen(arg); i++) {
             char c = arg[i];
-            if (c=='t' || c=='T') {
-                if (reset_touch) {
-                    ok_args = false;
+            switch (c) {
+                case 't':
+                case 'T':
+                    reset_touch = true;
                     break;
-                }
-                reset_touch = true;
-            } else if (c=='o' || c=='O') {
-                if (reset_obstacle) {
-                    ok_args = false;
+                case 'o':
+                case 'O':
+                    reset_obstacle = true;
                     break;
-                }
-                reset_obstacle = true;
-            } else if (c=='s' || c=='S') {
-                if (reset_sound) {
-                    ok_args = false;
+                case 's':
+                case 'S':
+                    reset_sound = true;
                     break;
-                }
-                reset_sound = true;
-            } else if (c=='r' || c=='R') {
-                if (reset_range) {
-                    ok_args = false;
+                case 'r':
+                case 'R':
+                    reset_range = true;
                     break;
-                }
-                reset_range = true;
-            } else {
+                default:
                 ok_args = false;
             }
         }
