@@ -15,13 +15,6 @@
 #include "sensors.h"
 
 bool open_sensors(SENSOR_DATA *sensor_values, bool initialize) {
-    // Clear sensor values
-    
-    clear_sensor_values(sensor_values);
-    if (write_sensor_file(sensor_values) <= 0) {
-	    return false;
-	}
-
     /**
     * WiringPi and GPIO initialization
     **/
@@ -44,6 +37,14 @@ bool open_sensors(SENSOR_DATA *sensor_values, bool initialize) {
     pullUpDnControl (TOUCH_GPIO, PUD_DOWN);
     pinMode (SOUND_GPIO, INPUT);
     pinMode (RANGE_ECHO_GPIO, INPUT);
+
+    // Clear sensor values
+    
+    clear_sensor_values(sensor_values);
+    if (write_sensor_file(sensor_values) <= 0) {
+	    return false;
+	}
+
 
 	return true;
 }
