@@ -22,7 +22,9 @@
 #include "sensors.h"
 
 #define INITIALIZE_DATA     true
-#define SPEED_OF_SOUND      0.00000343  // cm/nanosecond
+#define SPEED_OF_SOUND      0.0000343  // cm/nanosecond
+#define ECHO_INDICATOR      'e'
+
 
 void terminate_signal_handler(int sig);
 
@@ -32,12 +34,11 @@ void obstacle_handler(void);
 void sound_handler(void);
 void range_echo_handler(void);
 
-static struct timespec range_pulse_sent;
 static struct timespec echo_start;      // Start time of range echo signal 
-                                        // Rangefinder sets pin HIGH for same time it took echo to return
+        // Rangefinder sets pin HIGH for same time it took echo to return
 
 static SENSOR_DATA sensor_values;
-static bool TERMINATE_SIGNAL_RECEIVED = false;
+static volatile bool TERMINATE_SIGNAL_RECEIVED = false;
 
 int main(void) {
     
@@ -113,7 +114,7 @@ int main(void) {
         nanosleep(&max_echo_time, (struct timespec *)NULL);
         
         // If there was no reading, set range to 999 and write file
-        if (sensor_values.range == NO_RANGE_INDICATOR) {
+        if (sensor_values.range != RANGE_INDICATOR) {
             sensor_values.range_val[0] = '9';   // Hundreds
             sensor_values.range_val[1] = '9';   // Tens
             sensor_values.range_val[2] = '9';   // Ones
@@ -167,22 +168,29 @@ void sound_handler() {
 }
 
 void range_echo_handler() {
-    if (sensor_values.range != NO_RANGE_INDICATOR) {
+    if (sensor_values.range == RANGE_INDICATOR) {
         return;         // If not waiting for measurement, exit here
     }
     
     int pin_value = digitalRead(RANGE_ECHO_GPIO);
     
     // Handle start of echo signal
-    if (pin_value == HIGH) {
+    if (sensor_values.range == NO_RANGE_INDICATOR && pin_value == HIGH) {
         clock_gettime(CLOCK_REALTIME, &echo_start);
+        sensor_values.range = ECHO_INDICATOR;
+        return;
+    }
+    
+    if (sensor_values.range != ECHO_INDICATOR || pin_value != LOW) {
         return;
     }
     
     // Handle end of echo signal
-    int range = 0;
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
+    sensor_values.range = RANGE_INDICATOR;
+    
+    int range = 0;
     long secs = now.tv_sec - echo_start.tv_sec;       // Get seconds
     long nsecs = now.tv_nsec - echo_start.tv_nsec;    // Get nanoseconds (may be negative if second has changed!)
     if (secs > 1) {
@@ -191,19 +199,18 @@ void range_echo_handler() {
         range = 0;      // If time is negative, set range to 0 - Should never happen!
     } else {
         long t = (1000000000L * secs) + nsecs;      // Time (nsec) for pulse echo to return
-        float r = (float) SPEED_OF_SOUND * t / 2;   // Range in cm
+        double r = (double) SPEED_OF_SOUND * (double) t / 2;   // Range in cm
         if (r < 0) {                                // Make integer from 0-999 cm
             range = 0;
         } else if (r > 999) {
             range = 999;
         } else {
-            range = (int) r;
+            range = (int) (r + 0.5);
         }
     }
     sensor_values.range_val[0] = '0' + (range / 100);       // Hundreds
     sensor_values.range_val[1] = '0' + ((range / 10) % 10); // Tens
     sensor_values.range_val[2] = '0' + (range % 10);        // Ones
-    sensor_values.range = RANGE_INDICATOR;
     write_sensor_file(&sensor_values);
 }
 
