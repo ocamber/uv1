@@ -21,7 +21,6 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-#define INITIALIZE_DATA     true
 #define SPEED_OF_SOUND      0.0000343  // cm/nanosecond
 #define ECHO_INDICATOR      'e'
 
@@ -76,7 +75,7 @@ int main(void) {
 
     // Sensor data setup
 
-    if (!open_sensors(&sensor_values, INITIALIZE_DATA)) {
+    if (!open_sensors(&sensor_values)) {
         fprintf(stderr, "Cannot set up sensor_data file!\n");
         fflush(stderr);
         exit(EXIT_FAILURE);

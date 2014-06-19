@@ -10,6 +10,8 @@
 #define LEFT_MOTOR_FWD_GPIO     23
 #define RIGHT_MOTOR_REV_GPIO    24
 #define LEFT_MOTOR_REV_GPIO     22
+#define BUZZER_GPIO             18
+#define LASER_GPIO              17
 #define OBSTACLE_GPIO           8
 #define TOUCH_GPIO              7
 #define RANGE_ECHO_GPIO         4

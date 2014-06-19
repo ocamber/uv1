@@ -14,7 +14,7 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-bool open_sensors(SENSOR_DATA *sensor_values, bool initialize) {
+bool open_sensors(SENSOR_DATA *sensor_values) {
     /**
     * WiringPi and GPIO initialization
     **/
@@ -34,7 +34,6 @@ bool open_sensors(SENSOR_DATA *sensor_values, bool initialize) {
     pinMode (TOUCH_GPIO, INPUT);
     pullUpDnControl (TOUCH_GPIO, PUD_UP);
     pinMode (OBSTACLE_GPIO, INPUT);
-    pullUpDnControl (TOUCH_GPIO, PUD_DOWN);
     pinMode (SOUND_GPIO, INPUT);
     pinMode (RANGE_ECHO_GPIO, INPUT);
 
@@ -44,7 +43,6 @@ bool open_sensors(SENSOR_DATA *sensor_values, bool initialize) {
     if (write_sensor_file(sensor_values) <= 0) {
 	    return false;
 	}
-
 
 	return true;
 }

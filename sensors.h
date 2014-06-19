@@ -18,6 +18,8 @@
 #define NO_RANGE_INDICATOR      'r'
 #define POSITIVE_VAL            '+'
 #define NEGATIVE_VAL            '-'
+#define POSITIVE_LEFT           '<'
+#define POSITIVE_RIGHT          '>'
 
 typedef struct {
     char touch;
@@ -31,7 +33,7 @@ typedef struct {
     char end_mark;
 } SENSOR_DATA;
 
-bool open_sensors(SENSOR_DATA*, bool);
+bool open_sensors(SENSOR_DATA *);
 size_t read_sensor_file(SENSOR_DATA *);
 size_t write_sensor_file(SENSOR_DATA *);
 void clear_sensor_values(SENSOR_DATA *);
