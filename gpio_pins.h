@@ -5,15 +5,15 @@
 *
 */
 
-#define LIGHTS_GPIO             27
+#define OBSTACLE_GPIO           27
 #define RIGHT_MOTOR_FWD_GPIO    25
 #define LEFT_MOTOR_FWD_GPIO     23
 #define RIGHT_MOTOR_REV_GPIO    24
 #define LEFT_MOTOR_REV_GPIO     22
 #define BUZZER_GPIO             18
 #define LASER_GPIO              17
-#define OBSTACLE_GPIO           8
-#define TOUCH_GPIO              7
-#define RANGE_ECHO_GPIO         4
-#define RANGE_TRIGGER_GPIO      3
-#define SOUND_GPIO              2
+#define TOUCH_GPIO              15
+#define LIGHTS_GPIO             14
+#define SOUND_GPIO              11
+#define RANGE_ECHO_GPIO         10
+#define RANGE_TRIGGER_GPIO      9

@@ -83,6 +83,7 @@ int main(void) {
 
     // GPIO signal handlers
 
+    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
     wiringPiISR(TOUCH_GPIO, INT_EDGE_RISING, &touch_handler);
     wiringPiISR(OBSTACLE_GPIO, INT_EDGE_FALLING, &obstacle_handler);
     wiringPiISR(SOUND_GPIO, INT_EDGE_FALLING, &sound_handler);
