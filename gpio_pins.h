@@ -11,9 +11,9 @@
 #define RIGHT_MOTOR_REV_GPIO    24
 #define LEFT_MOTOR_REV_GPIO     22
 #define BUZZER_GPIO             18
-#define LASER_GPIO              17
+#define SOUND_GPIO              17
 #define TOUCH_GPIO              15
 #define LIGHTS_GPIO             14
-#define SOUND_GPIO              11
 #define RANGE_ECHO_GPIO         10
 #define RANGE_TRIGGER_GPIO      9
+#define LASER_GPIO              7
