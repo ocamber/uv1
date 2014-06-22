@@ -14,7 +14,7 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-bool open_sensors(SENSOR_DATA *sensor_values) {
+bool initialize_sensors(SENSOR_DATA *sensor_values) {
     /**
     * WiringPi and GPIO initialization
     **/
@@ -70,7 +70,7 @@ void clear_sensor_values(SENSOR_DATA *sensor_values) {
 	reset_obstacle_value(sensor_values);
 	reset_sound_value(sensor_values);
     reset_range_value(sensor_values);
-	sensor_values->end_mark = '\n';
+	sensor_values->end_mark = SENSOR_DATA_END_MARK;
 }
 
 void reset_touch_value(SENSOR_DATA *sensor_values) {

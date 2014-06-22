@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #define SENSOR_FILE             "/dev/shm/sensor_data"
+#define SHARED_MEMORY_KEY       14721
 #define TOUCH_INDICATOR         'T'
 #define OBSTACLE_INDICATOR      'O'
 #define SOUND_INDICATOR         'S'
@@ -15,11 +16,13 @@
 #define NO_TOUCH_INDICATOR      't'
 #define NO_OBSTACLE_INDICATOR   'o'
 #define NO_SOUND_INDICATOR      's'
+#define ECHO_INDICATOR          'e'
 #define NO_RANGE_INDICATOR      'r'
 #define POSITIVE_VAL            '+'
 #define NEGATIVE_VAL            '-'
 #define POSITIVE_LEFT           '<'
 #define POSITIVE_RIGHT          '>'
+#define SENSOR_DATA_END_MARK    '\n'
 
 typedef struct {
     char touch;
@@ -33,7 +36,7 @@ typedef struct {
     char end_mark;
 } SENSOR_DATA;
 
-bool open_sensors(SENSOR_DATA *);
+bool initialize_sensors(SENSOR_DATA *);
 size_t read_sensor_file(SENSOR_DATA *);
 size_t write_sensor_file(SENSOR_DATA *);
 void clear_sensor_values(SENSOR_DATA *);

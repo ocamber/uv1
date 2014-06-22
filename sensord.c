@@ -16,14 +16,11 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/shm.h>
-#include <sys/mman.h>
 #include <wiringPi.h>
 #include "gpio_pins.h"
 #include "sensors.h"
 
 #define SPEED_OF_SOUND      0.0000343  // cm/nanosecond
-#define ECHO_INDICATOR      'e'
-
 
 void terminate_signal_handler(int sig);
 
@@ -34,9 +31,11 @@ void sound_handler(void);
 void range_echo_handler(void);
 
 static struct timespec echo_start;      // Start time of range echo signal 
-        // Rangefinder sets pin HIGH for same time it took echo to return
+        // Rangefinder sets pin HIGH for the time it took the pulse to leave and return as echo
 
-static SENSOR_DATA sensor_values;
+static SENSOR_DATA *sensor_values;
+static int shared_memory_id;
+
 static volatile bool TERMINATE_SIGNAL_RECEIVED = false;
 
 int main(void) {
@@ -45,39 +44,58 @@ int main(void) {
     
     if (signal(SIGINT, terminate_signal_handler) == SIG_ERR) {
         fprintf(stderr, "Cannot handle SIGINT!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
     
     if (signal(SIGTERM, terminate_signal_handler) == SIG_ERR) {
         fprintf(stderr, "Cannot handle SIGTERM!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
     
     if (signal(SIGHUP, terminate_signal_handler) == SIG_ERR) {
         fprintf(stderr, "Cannot handle SIGHUP!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
     
     if (signal(SIGQUIT, terminate_signal_handler) == SIG_ERR) {
         fprintf(stderr, "Cannot handle SIGQUIT!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
     
     if (signal(SIGABRT, terminate_signal_handler) == SIG_ERR) {
         fprintf(stderr, "Cannot handle SIGABRT!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
 
     // Sensor data setup
 
-    if (!open_sensors(&sensor_values)) {
+    // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
+    shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), 0666 | IPC_CREAT);		
+        //	Permission flags
+        //		Operation permissions 	Octal value
+        //		Read by user 			00400
+        //		Write by user 			00200
+        //		Read by group 			00040
+        //		Write by group 			00020
+        //		Read by others 			00004
+        //		Write by others			00002
+
+    if (shared_memory_id == -1)
+    {
+        fprintf(stderr, "Shared memory shmget() failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    //Make the shared memory accessible to the program
+    sensor_values = (SENSOR_DATA *) shmat(shared_memory_id, (void *)0, 0);
+    if (sensor_values == (SENSOR_DATA *) -1 )
+    {
+        fprintf(stderr, "Shared memory shmat() failed\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    if (!initialize_sensors(sensor_values)) {
         fprintf(stderr, "Cannot set up sensor_data file!\n");
-        fflush(stderr);
         exit(EXIT_FAILURE);
     }
 
@@ -104,7 +122,7 @@ int main(void) {
     inter_pulse_interval.tv_nsec = 200000000L - (pulse_width.tv_nsec + max_echo_time.tv_nsec);
 
     while(!TERMINATE_SIGNAL_RECEIVED) {
-        sensor_values.range = NO_RANGE_INDICATOR;
+        sensor_values->range = NO_RANGE_INDICATOR;
         // Send 10 usec pulse
         digitalWrite(RANGE_TRIGGER_GPIO, HIGH);
         nanosleep(&pulse_width, (struct timespec *)NULL);
@@ -114,23 +132,27 @@ int main(void) {
         nanosleep(&max_echo_time, (struct timespec *)NULL);
         
         // If there was no reading, set range to 999 and write file
-        if (sensor_values.range != RANGE_INDICATOR) {
-            sensor_values.range_val[0] = '9';   // Hundreds
-            sensor_values.range_val[1] = '9';   // Tens
-            sensor_values.range_val[2] = '9';   // Ones
-            sensor_values.range = RANGE_INDICATOR;
-            write_sensor_file(&sensor_values);
+        if (sensor_values->range != RANGE_INDICATOR) {
+            sensor_values->range_val[0] = '9';   // Hundreds
+            sensor_values->range_val[1] = '9';   // Tens
+            sensor_values->range_val[2] = '9';   // Ones
+            sensor_values->range = RANGE_INDICATOR;
+            write_sensor_file(sensor_values);
         }
         
         // Wait remainder of time until next pulse
         nanosleep(&inter_pulse_interval, (struct timespec *)NULL);
         
-        // Read any sensor values updated by external program
-        read_sensor_file(&sensor_values);
+        // Read any sensor values updated by external program without shared memory
+        read_sensor_file(sensor_values);
     }
     
     // Before termination, turn off rangefinder
     digitalWrite(RANGE_TRIGGER_GPIO, LOW); 
+    
+    // Detach and delete shared memory
+	shmdt( (void *) sensor_values );
+    shmctl( shared_memory_id, IPC_RMID, 0 );
            
     exit(EXIT_SUCCESS);
 }    
@@ -138,23 +160,23 @@ int main(void) {
 void touch_handler() {
     stop_motors();      // Reflex action - stop motors
     
-    if (sensor_values.touch == TOUCH_INDICATOR) {
+    if (sensor_values->touch == TOUCH_INDICATOR) {
         return;         // If a touch was already detected, exit here
     }
-    sensor_values.touch_val = POSITIVE_VAL;
-    sensor_values.touch = TOUCH_INDICATOR;
-    write_sensor_file(&sensor_values);
+    sensor_values->touch_val = POSITIVE_VAL;
+    sensor_values->touch = TOUCH_INDICATOR;
+    write_sensor_file(sensor_values);
 }
 
 void obstacle_handler() {
     stop_motors();      // Reflex action - stop motors
     
-    if (sensor_values.obstacle == OBSTACLE_INDICATOR) {
+    if (sensor_values->obstacle == OBSTACLE_INDICATOR) {
         return;         // If an obstacle was already detected, exit here
     }
-    sensor_values.obstacle_val = POSITIVE_VAL;
-    sensor_values.obstacle = OBSTACLE_INDICATOR;
-    write_sensor_file(&sensor_values);
+    sensor_values->obstacle_val = POSITIVE_VAL;
+    sensor_values->obstacle = OBSTACLE_INDICATOR;
+    write_sensor_file(sensor_values);
 }
 
 void sound_handler() {
@@ -162,33 +184,32 @@ void sound_handler() {
     if (sensor_values.sound == SOUND_INDICATOR) {
         return;         // If a sound was already detected, exit here
     }
-    sensor_values.sound_val = POSITIVE_VAL;
-    sensor_values.sound = SOUND_INDICATOR;
-    write_sensor_file(&sensor_values);
+    sensor_values->sound_val = POSITIVE_VAL;
+    sensor_values->sound = SOUND_INDICATOR;
+    write_sensor_file(sensor_values);
 }
 
 void range_echo_handler() {
-    if (sensor_values.range == RANGE_INDICATOR) {
+    if (sensor_values->range == RANGE_INDICATOR) {
         return;         // If not waiting for measurement, exit here
     }
     
     int pin_value = digitalRead(RANGE_ECHO_GPIO);
     
     // Handle start of echo signal
-    if (sensor_values.range == NO_RANGE_INDICATOR && pin_value == HIGH) {
+    if (sensor_values->range == NO_RANGE_INDICATOR && pin_value == HIGH) {
         clock_gettime(CLOCK_REALTIME, &echo_start);
-        sensor_values.range = ECHO_INDICATOR;
+        sensor_values->range = ECHO_INDICATOR;
         return;
     }
     
-    if (sensor_values.range != ECHO_INDICATOR || pin_value != LOW) {
+    if ( ! (sensor_values->range == ECHO_INDICATOR && pin_value == LOW) ) {
         return;
     }
     
     // Handle end of echo signal
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
-    sensor_values.range = RANGE_INDICATOR;
     
     int range = 0;
     long secs = now.tv_sec - echo_start.tv_sec;       // Get seconds
@@ -208,10 +229,11 @@ void range_echo_handler() {
             range = (int) (r + 0.5);
         }
     }
-    sensor_values.range_val[0] = '0' + (range / 100);       // Hundreds
-    sensor_values.range_val[1] = '0' + ((range / 10) % 10); // Tens
-    sensor_values.range_val[2] = '0' + (range % 10);        // Ones
-    write_sensor_file(&sensor_values);
+    sensor_values->range_val[0] = '0' + (range / 100);       // Hundreds
+    sensor_values->range_val[1] = '0' + ((range / 10) % 10); // Tens
+    sensor_values->range_val[2] = '0' + (range % 10);        // Ones
+    sensor_values->range = RANGE_INDICATOR;
+    write_sensor_file(sensor_values);
 }
 
 void stop_motors() {
