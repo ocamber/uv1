@@ -181,7 +181,7 @@ void obstacle_handler() {
 
 void sound_handler() {
     stop_motors();      // Reflex action - stop motors
-    if (sensor_values.sound == SOUND_INDICATOR) {
+    if (sensor_values->sound == SOUND_INDICATOR) {
         return;         // If a sound was already detected, exit here
     }
     sensor_values->sound_val = POSITIVE_VAL;
