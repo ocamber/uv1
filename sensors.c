@@ -33,6 +33,7 @@ int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
         //		Write by others			00002
     if (shared_memory_id == -1)
     {
+        fprintf(stderr, "Shared memory key setup failed!\n");
         return shared_memory_id;
     }
     
@@ -40,6 +41,7 @@ int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
     sensor_values = (SENSOR_DATA *) shmat(shared_memory_id, (void *)0, 0);
     if (sensor_values == (SENSOR_DATA *) -1 )
     {
+        fprintf(stderr, "Shared memory key setup failed!\n");
         if (ipc_mode & IPC_CREAT) {
             shmctl( shared_memory_id, IPC_RMID, 0 );
         }
@@ -58,6 +60,10 @@ int initialize_sensors(SENSOR_DATA *sensor_values) {
     **/    
 
     int shared_memory_id = access_shared_memory(sensor_values, 0666 | IPC_CREAT);	
+    if (shared_memory_id <= 0)
+    {
+        return shared_memory_id;
+    }
     
     /**
     * WiringPi and GPIO initialization
