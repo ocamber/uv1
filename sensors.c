@@ -15,7 +15,7 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-void release_shared_memory(SENSOR_DATA *sensor_values, int shared_memory_id) {
+void release_shared_memory(int shared_memory_id, SENSOR_DATA *sensor_values) {
 	shmdt( (void *) sensor_values );
     shmctl( shared_memory_id, IPC_RMID, 0 );
 }
