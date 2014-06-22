@@ -9,12 +9,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <sys/shm.h>
 #include <unistd.h>
 #include <wiringPi.h>
 #include "gpio_pins.h"
 #include "sensors.h"
 
-bool initialize_sensors(SENSOR_DATA *sensor_values) {
+void release_shared_memory(SENSOR_DATA *sensor_values, int shared_memory_id) {
+	shmdt( (void *) sensor_values );
+    shmctl( shared_memory_id, IPC_RMID, 0 );
+}
+
+int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
+    // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
+    int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), ipc_mode);	
+        //	Permission flags
+        //		Operation permissions 	Octal value
+        //		Read by user 			00400
+        //		Write by user 			00200
+        //		Read by group 			00040
+        //		Write by group 			00020
+        //		Read by others 			00004
+        //		Write by others			00002
+    if (shared_memory_id == -1)
+    {
+        return shared_memory_id;
+    }
+    
+    //Make the shared memory accessible to the program
+    sensor_values = (SENSOR_DATA *) shmat(shared_memory_id, (void *)0, 0);
+    if (sensor_values == (SENSOR_DATA *) -1 )
+    {
+        if (ipc_mode & IPC_CREAT) {
+            shmctl( shared_memory_id, IPC_RMID, 0 );
+        }
+        return -1;
+    }
+}
+
+int access_sensors(SENSOR_DATA *sensor_values) {
+    return access_shared_memory(sensor_values, 0);
+}
+
+int initialize_sensors(SENSOR_DATA *sensor_values) {
+
+    /**
+    * Shared memory initialization
+    **/    
+
+    int shared_memory_id = access_shared_memory(sensor_values, 0666 | IPC_CREAT);	
+    
     /**
     * WiringPi and GPIO initialization
     **/
@@ -32,7 +76,7 @@ bool initialize_sensors(SENSOR_DATA *sensor_values) {
     // Input pins
 
     pinMode (TOUCH_GPIO, INPUT);
-    pullUpDnControl (TOUCH_GPIO, PUD_UP);
+    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
     pinMode (OBSTACLE_GPIO, INPUT);
     pinMode (SOUND_GPIO, INPUT);
     pinMode (RANGE_ECHO_GPIO, INPUT);
@@ -41,10 +85,11 @@ bool initialize_sensors(SENSOR_DATA *sensor_values) {
     
     clear_sensor_values(sensor_values);
     if (write_sensor_file(sensor_values) <= 0) {
-	    return false;
+        release_shared_memory(sensor_values, shared_memory_id);
+	    return -1;
 	}
 
-	return true;
+    return shared_memory_id;
 }
 
 size_t read_sensor_file(SENSOR_DATA *sensor_values) {

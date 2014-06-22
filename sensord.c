@@ -15,7 +15,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <sys/shm.h>
 #include <wiringPi.h>
 #include "gpio_pins.h"
 #include "sensors.h"
@@ -69,39 +68,14 @@ int main(void) {
 
     // Sensor data setup
 
-    // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
-    shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), 0666 | IPC_CREAT);		
-        //	Permission flags
-        //		Operation permissions 	Octal value
-        //		Read by user 			00400
-        //		Write by user 			00200
-        //		Read by group 			00040
-        //		Write by group 			00020
-        //		Read by others 			00004
-        //		Write by others			00002
-
-    if (shared_memory_id == -1)
-    {
-        fprintf(stderr, "Shared memory shmget() failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    //Make the shared memory accessible to the program
-    sensor_values = (SENSOR_DATA *) shmat(shared_memory_id, (void *)0, 0);
-    if (sensor_values == (SENSOR_DATA *) -1 )
-    {
-        fprintf(stderr, "Shared memory shmat() failed\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    if (!initialize_sensors(sensor_values)) {
-        fprintf(stderr, "Cannot set up sensor_data file!\n");
+    shared_memory_id = initialize_sensors(sensor_values);
+    if (shared_memory_id == -1) {
+        fprintf(stderr, "Cannot set up sensors!\n");
         exit(EXIT_FAILURE);
     }
 
     // GPIO signal handlers
 
-    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
     wiringPiISR(TOUCH_GPIO, INT_EDGE_RISING, &touch_handler);
     wiringPiISR(OBSTACLE_GPIO, INT_EDGE_FALLING, &obstacle_handler);
     wiringPiISR(SOUND_GPIO, INT_EDGE_FALLING, &sound_handler);
@@ -151,8 +125,7 @@ int main(void) {
     digitalWrite(RANGE_TRIGGER_GPIO, LOW); 
     
     // Detach and delete shared memory
-	shmdt( (void *) sensor_values );
-    shmctl( shared_memory_id, IPC_RMID, 0 );
+    release_shared_memory(shared_memory_id, sensor_values);
            
     exit(EXIT_SUCCESS);
 }    
