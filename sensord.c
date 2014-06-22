@@ -69,7 +69,7 @@ int main(void) {
     // Sensor data setup
 
     shared_memory_id = initialize_sensors(sensor_values);
-    if (shared_memory_id <= 0) {
+    if (shared_memory_id < 0) {
         fprintf(stderr, "Cannot set up sensors!\n");
         exit(EXIT_FAILURE);
     }

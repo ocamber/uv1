@@ -31,15 +31,15 @@ int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
         //		Write by group 			00020
         //		Read by others 			00004
         //		Write by others			00002
-    if (shared_memory_id == -1)
+    if (shared_memory_id < 0)
     {
         fprintf(stderr, "Shared memory key setup failed!\n");
         return shared_memory_id;
     }
     
     //Make the shared memory accessible to the program
-    sensor_values = (SENSOR_DATA *) shmat(shared_memory_id, (void *)0, 0);
-    if (sensor_values == (SENSOR_DATA *) -1 )
+    sensor_values = (SENSOR_DATA*) shmat(shared_memory_id, (void *)0, 0);
+    if (sensor_values < (SENSOR_DATA*) 0 )
     {
         fprintf(stderr, "Shared memory key setup failed!\n");
         if (ipc_mode & IPC_CREAT) {
@@ -60,7 +60,7 @@ int initialize_sensors(SENSOR_DATA *sensor_values) {
     **/    
 
     int shared_memory_id = access_shared_memory(sensor_values, 0666 | IPC_CREAT);	
-    if (shared_memory_id <= 0)
+    if (shared_memory_id < 0)
     {
         return shared_memory_id;
     }
