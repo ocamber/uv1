@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/shm.h>
 #include <sys/time.h>
 #include <wiringPi.h>
 #include "gpio_pins.h"
