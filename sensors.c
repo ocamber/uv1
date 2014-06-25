@@ -17,11 +17,6 @@
 
 int access_sensor_memory(SENSOR_DATA **sensor_values_ptr, int mode) {
 
-    // 
-    if (mode & IPC_CREAT) {
-        shmctl( shared_memory_id, IPC_RMID, 0 );
-    }
-    
     // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
     int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), mode & 011777);	
         //  Permission flags
