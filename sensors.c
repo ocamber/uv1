@@ -15,7 +15,11 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-int access_sensor_memory(SENSOR_DATA *sensor_values, int ipc_mode, int rw_mode) {
+int access_sensor_memory(SENSOR_DATA **sensor_values_ptr, int ipc_mode) {
+    
+    // Set for read-only access by default
+    int read_only = SHM_RDONLY;
+    
     // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
     int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), ipc_mode);	
         //  Permission flags
@@ -31,9 +35,14 @@ int access_sensor_memory(SENSOR_DATA *sensor_values, int ipc_mode, int rw_mode) 
         return shared_memory_id;
     }
     
+    if (ipc_mode & IPC_CREAT)
+    {
+        read_only = 0; // Set for read/write mode
+    }
+    
     //Make the shared memory accessible to the program
-    sensor_values = (SENSOR_DATA*) shmat(shared_memory_id, (void *)0, 0);
-    if (sensor_values < (SENSOR_DATA*) 0 )
+    *sensor_values_ptr = (SENSOR_DATA*) shmat(shared_memory_id, (void *)0, read_only);
+    if ( *sensor_values_ptr < (SENSOR_DATA*) 0 )
     {
         if (ipc_mode & IPC_CREAT) {
             shmctl( shared_memory_id, IPC_RMID, 0 );
