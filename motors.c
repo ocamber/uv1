@@ -15,10 +15,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <wiringPi.h>
-#include "gpio_pins.h"
+#include "sensors.h"
+
+static SENSOR_DATA *sensor_values;
+static int shared_memory_id;
 
 FILE *stream;
 char data[100];
+int unused_duration = 0;
 
 void execute_motion(char *);
 
@@ -50,6 +54,15 @@ int main(int argc, char **argv)
         stream = NULL;
     }
     
+    // Access sensor memory - read-write without create
+    shared_memory_id = access_sensor_memory( &sensor_values, SHM_RDONLY );	
+    if (shared_memory_id < 0)
+    {
+        fprintf(stderr, "Cannot access sensor memory!\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Set up GPIO pins
     wiringPiSetupGpio();
     pinMode (LEFT_MOTOR_FWD_GPIO, OUTPUT);
     pinMode (LEFT_MOTOR_REV_GPIO, OUTPUT);
@@ -58,34 +71,37 @@ int main(int argc, char **argv)
     
     if (stream)
     {
-        while (!feof(stream))
+        while (unused_duration == 0 && !feof(stream))
         {
             if (fscanf(stream, "%s", data) > 0)
             {
-                execute_motion(data);
+                unused_duration = execute_motion(data);
+                printf( "%s -%d\n", data, unused_duration );
             }
         }
         fclose(stream);
     }
     else
     {
-        execute_motion(argv[1]);
+        unused_duration = execute_motion(argv[1]);
+        printf( "%s -%d\n", argv[1], unused_duration );
     }
     
     execute_motion(MOTORS_OFF);
     
-    return 0;
+    return unused_duration;
 
 } // main
 
 
-void execute_motion(char *data)
+int execute_motion(char *data)
 {
     char left_motion = data[0];
     char right_motion = data[1];
-    int duration = 0;
+    
+    int remaining_duration = 0;
 
-    if (sscanf( (data + 2), "%d", &duration ) > 0)
+    if (sscanf( (data + 2), "%d", &remaining_duration ) > 0)
     {
         switch (left_motion)
         {
@@ -145,11 +161,18 @@ void execute_motion(char *data)
             default:
                 break;
         }
-
-        if (duration > 0)
+        while (remaining_duration > 0)
         {
-            delay(duration);
+            if (sensor_values->obstacle_val == POSITIVE_VAL
+                || sensor_values->touch_val == POSITIVE_VAL 
+                || sensor_values->sound_val == POSITIVE_VAL)
+            {
+                break;
+            }
+            remaining_duration --;
+            delay(1);
         }
     }
+    return remaining_duration;
 }
 
