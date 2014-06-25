@@ -162,7 +162,7 @@ int main(void) {
     digitalWrite(RANGE_TRIGGER_GPIO, LOW); 
     
     // Detach and delete shared memory
-    release_shared_memory(shared_memory_id, sensor_values);
+    release_sensor_memory(shared_memory_id, sensor_values);
            
     exit(EXIT_SUCCESS);
 }    
