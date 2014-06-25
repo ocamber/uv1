@@ -73,7 +73,7 @@ int main(void) {
     * Shared memory initialization
     **/    
 
-    shared_memory_id = access_sensor_memory(sensor_values&, (0666 | IPC_CREAT), 0);	
+    shared_memory_id = access_sensor_memory( &sensor_values, (0666 | IPC_CREAT) );	
     if (shared_memory_id < 0)
     {
         fprintf(stderr, "Cannot access sensor memory!\n");
