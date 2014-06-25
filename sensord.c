@@ -106,7 +106,7 @@ int main(void) {
     
     clear_sensor_values(sensor_values);
     if (write_sensor_file(sensor_values) <= 0) {
-        release_shared_memory(shared_memory_id, sensor_values);
+        release_sensor_memory(shared_memory_id, sensor_values);
         fprintf(stderr, "Cannot clear sensor values!\n");
         exit(EXIT_FAILURE);
 	}
