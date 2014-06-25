@@ -15,8 +15,8 @@ laser : laser.c gpio_pins.h		# App to turn forward laser on or off
 buzzer : buzzer.c gpio_pins.h		# App to turn buzzer on or off
 	gcc -lwiringPi buzzer.c -o buzzer
 
-motors : motors.c gpio_pins.h		# App to run the motors
-	gcc -lwiringPi motors.c -o motors
+motors : motors.c sensors.o gpio_pins.h		# App to run the motors
+	gcc -lwiringPi sensors.o motors.c -o motors
 
 sensors.o : sensors.c sensors.h gpio_pins.h 	# Sensor support functions
 	gcc -lwiringPi -c sensors.c -o sensors.o
