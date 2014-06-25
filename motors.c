@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/shm.h>
 #include <wiringPi.h>
 #include "gpio_pins.h"
 #include "sensors.h"
@@ -25,7 +26,7 @@ FILE *stream;
 char data[100];
 int unused_duration = 0;
 
-void execute_motion(char *);
+int execute_motion(char *);
 
 int main(int argc, char **argv)
 {
