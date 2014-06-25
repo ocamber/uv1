@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <wiringPi.h>
+#include "gpio_pins.h"
 #include "sensors.h"
 
 static SENSOR_DATA *sensor_values;
