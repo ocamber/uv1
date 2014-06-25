@@ -15,25 +15,19 @@
 #include "gpio_pins.h"
 #include "sensors.h"
 
-void release_shared_memory(int shared_memory_id, SENSOR_DATA *sensor_values) {
-	shmdt( (void *) sensor_values );
-    shmctl( shared_memory_id, IPC_RMID, 0 );
-}
-
-int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
+int access_sensor_memory(SENSOR_DATA *sensor_values, int ipc_mode, int rw_mode) {
     // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
     int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), ipc_mode);	
-        //	Permission flags
-        //		Operation permissions 	Octal value
-        //		Read by user 			00400
-        //		Write by user 			00200
-        //		Read by group 			00040
-        //		Write by group 			00020
-        //		Read by others 			00004
-        //		Write by others			00002
+        //  Permission flags
+        //  Operation permissions   Octal value
+        //  Read by user            00400
+        //  Write by user           00200
+        //  Read by group           00040
+        //  Write by group          00020
+        //  Read by others          00004
+        //  Write by others         00002
     if (shared_memory_id < 0)
     {
-        fprintf(stderr, "Shared memory key setup failed!\n");
         return shared_memory_id;
     }
     
@@ -41,7 +35,6 @@ int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
     sensor_values = (SENSOR_DATA*) shmat(shared_memory_id, (void *)0, 0);
     if (sensor_values < (SENSOR_DATA*) 0 )
     {
-        fprintf(stderr, "Shared memory key setup failed!\n");
         if (ipc_mode & IPC_CREAT) {
             shmctl( shared_memory_id, IPC_RMID, 0 );
         }
@@ -49,53 +42,9 @@ int access_shared_memory(SENSOR_DATA *sensor_values, int ipc_mode) {
     }
 }
 
-int access_sensors(SENSOR_DATA *sensor_values) {
-    return access_shared_memory(sensor_values, 0);
-}
-
-int initialize_sensors(SENSOR_DATA *sensor_values) {
-
-    /**
-    * Shared memory initialization
-    **/    
-
-    int shared_memory_id = access_shared_memory(sensor_values, 0666 | IPC_CREAT);	
-    if (shared_memory_id < 0)
-    {
-        return shared_memory_id;
-    }
-    
-    /**
-    * WiringPi and GPIO initialization
-    **/
-
-    wiringPiSetupGpio();
-
-    // Output pins
-
-    pinMode (RANGE_TRIGGER_GPIO, OUTPUT);
-    pinMode (LEFT_MOTOR_FWD_GPIO, OUTPUT);
-    pinMode (LEFT_MOTOR_REV_GPIO, OUTPUT);
-    pinMode (RIGHT_MOTOR_FWD_GPIO, OUTPUT);
-    pinMode (RIGHT_MOTOR_REV_GPIO, OUTPUT);
-
-    // Input pins
-
-    pinMode (TOUCH_GPIO, INPUT);
-    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
-    pinMode (OBSTACLE_GPIO, INPUT);
-    pinMode (SOUND_GPIO, INPUT);
-    pinMode (RANGE_ECHO_GPIO, INPUT);
-
-    // Clear sensor values
-    
-    clear_sensor_values(sensor_values);
-    if (write_sensor_file(sensor_values) <= 0) {
-        release_shared_memory(shared_memory_id, sensor_values);
-	    return -1;
-	}
-
-    return shared_memory_id;
+void release_sensor_memory(int shared_memory_id, SENSOR_DATA *sensor_values) {
+	shmdt( (void *) sensor_values );
+    shmctl( shared_memory_id, IPC_RMID, 0 );
 }
 
 size_t read_sensor_file(SENSOR_DATA *sensor_values) {

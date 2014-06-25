@@ -68,11 +68,47 @@ int main(void) {
 
     // Sensor data setup
 
-    shared_memory_id = initialize_sensors(sensor_values);
-    if (shared_memory_id < 0) {
-        fprintf(stderr, "Cannot set up sensors!\n");
+    /**
+    * Shared memory initialization
+    **/    
+
+    shared_memory_id = access_sensor_memory(sensor_values, (0666 | IPC_CREAT), 0);	
+    if (shared_memory_id < 0)
+    {
+        fprintf(stderr, "Cannot access sensor memory!\n");
         exit(EXIT_FAILURE);
     }
+    
+    /**
+    * WiringPi and GPIO initialization
+    **/
+
+    wiringPiSetupGpio();
+
+    // Output pins
+
+    pinMode (RANGE_TRIGGER_GPIO, OUTPUT);
+    pinMode (LEFT_MOTOR_FWD_GPIO, OUTPUT);
+    pinMode (LEFT_MOTOR_REV_GPIO, OUTPUT);
+    pinMode (RIGHT_MOTOR_FWD_GPIO, OUTPUT);
+    pinMode (RIGHT_MOTOR_REV_GPIO, OUTPUT);
+
+    // Input pins
+
+    pinMode (TOUCH_GPIO, INPUT);
+    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
+    pinMode (OBSTACLE_GPIO, INPUT);
+    pinMode (SOUND_GPIO, INPUT);
+    pinMode (RANGE_ECHO_GPIO, INPUT);
+
+    // Clear sensor values
+    
+    clear_sensor_values(sensor_values);
+    if (write_sensor_file(sensor_values) <= 0) {
+        release_shared_memory(shared_memory_id, sensor_values);
+        fprintf(stderr, "Cannot clear sensor values!\n");
+        exit(EXIT_FAILURE);
+	}
 
     // GPIO signal handlers
 

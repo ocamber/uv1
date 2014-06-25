@@ -36,10 +36,8 @@ typedef struct {
     char end_mark;
 } SENSOR_DATA;
 
-void release_shared_memory(int, SENSOR_DATA*);
-int access_shared_memory(SENSOR_DATA*, int);
-int access_sensors(SENSOR_DATA*);
-int initialize_sensors(SENSOR_DATA *);
+int access_sensor_memory(SENSOR_DATA*, int, int);
+void release_sensor_memory(int, SENSOR_DATA*);
 size_t read_sensor_file(SENSOR_DATA *);
 size_t write_sensor_file(SENSOR_DATA *);
 void clear_sensor_values(SENSOR_DATA *);
