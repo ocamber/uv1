@@ -11,7 +11,8 @@
 #include <stdlib.h>
 #include "sensors.h"
 
-static SENSOR_DATA sensor_values;
+static SENSOR_DATA *sensor_values;
+static int shared_memory_id;
 
 int main(int argc, char **argv)
 {
@@ -57,12 +58,20 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     
+    // Access sensor memory - read-write without create
+    shared_memory_id = access_sensor_memory( &sensor_values, 0 );	
+    if (shared_memory_id < 0)
+    {
+        fprintf(stderr, "Cannot access sensor memory!\n");
+        exit(EXIT_FAILURE);
+    }
+    
     /**
     * Clear sensor values then read them from shared memory file
     */
     
-    clear_sensor_values(&sensor_values);
-    if (read_sensor_file(&sensor_values) < 0) {
+    clear_sensor_values(sensor_values);
+    if (read_sensor_file(sensor_values) < 0) {
         fprintf(stderr, "Cannot read sensor file!\n");
         fflush(stderr);
         exit(EXIT_FAILURE);
@@ -74,29 +83,29 @@ int main(int argc, char **argv)
     
     if (reset_touch)
     {
-        reset_touch_value(&sensor_values);
+        reset_touch_value(sensor_values);
     }
     
     if (reset_obstacle)
     {
-        reset_obstacle_value(&sensor_values);
+        reset_obstacle_value(sensor_values);
     }
     
     if (reset_sound)
     {
-        reset_sound_value(&sensor_values);
+        reset_sound_value(sensor_values);
     }
     
     if (reset_range)
     {
-        reset_range_value(&sensor_values);
+        reset_range_value(sensor_values);
     }
     
     /**
     * Write updated values to file
     */
     
-    if (write_sensor_file(&sensor_values) < 0)
+    if (write_sensor_file(sensor_values) < 0)
     {
         fprintf(stderr, "Cannot write sensor data to file!\n");
         fflush(stderr);
