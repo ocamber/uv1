@@ -1,7 +1,7 @@
 /**
 * sensors.c - Sensor data access
 * 
-* Oren Camber 2014-05-23
+* Oren Camber 2014-06-23
 *
 */
 
@@ -16,19 +16,27 @@
 #include "sensors.h"
 
 int access_sensor_memory(SENSOR_DATA **sensor_values_ptr, int mode) {
+
+    // 
+    if (mode & IPC_CREAT) {
+        shmctl( shared_memory_id, IPC_RMID, 0 );
+    }
     
     // Set the shared memory key    (Shared memory key, Size in bytes, Permission flags)
-    int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), mode & !SHM_RDONLY);	
+    int shared_memory_id = shmget((key_t)SHARED_MEMORY_KEY, sizeof(SENSOR_DATA), mode & 011777);	
         //  Permission flags
         //  Operation permissions   Octal value
-        //  Read by user            00400
-        //  Write by user           00200
-        //  Read by group           00040
-        //  Write by group          00020
-        //  Read by others          00004
-        //  Write by others         00002
+        //  Open read-only          010000 - SHM_RDONLY
+        //  Create IPC mem segment  001000 - IPC_CREAT
+        //  Read by user            000400
+        //  Write by user           000200
+        //  Read by group           000040
+        //  Write by group          000020
+        //  Read by others          000004
+        //  Write by others         000002
     if (shared_memory_id < 0)
     {
+        fprintf(stderr, "shmget failed!\n");
         return shared_memory_id;
     }
     
@@ -36,6 +44,7 @@ int access_sensor_memory(SENSOR_DATA **sensor_values_ptr, int mode) {
     *sensor_values_ptr = (SENSOR_DATA*) shmat(shared_memory_id, (void *)0, mode & SHM_RDONLY);
     if ( *sensor_values_ptr < (SENSOR_DATA*) 0 )
     {
+        fprintf(stderr, "shmat failed!\n");
         if (mode & IPC_CREAT) {
             shmctl( shared_memory_id, IPC_RMID, 0 );
         }
