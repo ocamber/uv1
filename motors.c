@@ -24,7 +24,7 @@ static int shared_memory_id;
 
 FILE *stream;
 char data[100];
-int unused_duration = 0;
+int interrupted_duration = 0;
 
 int execute_motion(char *);
 
@@ -73,25 +73,25 @@ int main(int argc, char **argv)
     
     if (stream)
     {
-        while (unused_duration == 0 && !feof(stream))
+        while (interrupted_duration == 0 && !feof(stream))
         {
             if (fscanf(stream, "%s", data) > 0)
             {
-                unused_duration = execute_motion(data);
-                printf( "%s -%d\n", data, unused_duration );
+                interrupted_duration = execute_motion(data);
+                printf( "%s -%d\n", data, interrupted_duration );
             }
         }
         fclose(stream);
     }
     else
     {
-        unused_duration = execute_motion(argv[1]);
-        printf( "%s -%d\n", argv[1], unused_duration );
+        interrupted_duration = execute_motion(argv[1]);
+        printf( "%s -%d\n", argv[1], interrupted_duration );
     }
     
     execute_motion(MOTORS_OFF);
     
-    return unused_duration;
+    return interrupted_duration;
 
 } // main
 
@@ -103,7 +103,7 @@ int execute_motion(char *data)
     
     int remaining_duration = 0;
 
-    if (sscanf( (data + 2), "%d", &remaining_duration ) > 0)
+    if (sscanf( (data + 2), "%d", &remaining_duration ) >= 0)
     {
         switch (left_motion)
         {
@@ -165,9 +165,17 @@ int execute_motion(char *data)
         }
         while (remaining_duration > 0)
         {
+            if (sensor_values->sound_val == POSITIVE_VAL)
+            {
+                break;
+            }
+            if (sensor_values->touch_val == POSITIVE_VAL 
+                && (left_motion=='F' || right_motion=='F'))
+            {
+                break;
+            }
             if (sensor_values->obstacle_val == POSITIVE_VAL
-                || sensor_values->touch_val == POSITIVE_VAL 
-                || sensor_values->sound_val == POSITIVE_VAL)
+                && (left_motion=='F' && right_motion=='F'))
             {
                 break;
             }

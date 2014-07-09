@@ -24,7 +24,6 @@
 
 void terminate_signal_handler(int sig);
 
-void stop_motors(void);
 void touch_handler(void);
 void obstacle_handler(void);
 void sound_handler(void);
@@ -168,8 +167,6 @@ int main(void) {
 }    
 
 void touch_handler() {
-    stop_motors();      // Reflex action - stop motors
-    
     if (sensor_values->touch == TOUCH_INDICATOR) {
         return;         // If a touch was already detected, exit here
     }
@@ -179,8 +176,6 @@ void touch_handler() {
 }
 
 void obstacle_handler() {
-    stop_motors();      // Reflex action - stop motors
-    
     if (sensor_values->obstacle == OBSTACLE_INDICATOR) {
         return;         // If an obstacle was already detected, exit here
     }
@@ -190,7 +185,6 @@ void obstacle_handler() {
 }
 
 void sound_handler() {
-    stop_motors();      // Reflex action - stop motors
     if (sensor_values->sound == SOUND_INDICATOR) {
         return;         // If a sound was already detected, exit here
     }
@@ -244,13 +238,6 @@ void range_echo_handler() {
     sensor_values->range_val[2] = '0' + (range % 10);        // Ones
     sensor_values->range = RANGE_INDICATOR;
     write_sensor_file(sensor_values);
-}
-
-void stop_motors() {
-    digitalWrite(LEFT_MOTOR_FWD_GPIO, LOW);
-    digitalWrite(LEFT_MOTOR_REV_GPIO, LOW);
-    digitalWrite(RIGHT_MOTOR_FWD_GPIO, LOW);
-    digitalWrite(RIGHT_MOTOR_REV_GPIO, LOW);    
 }
 
 void terminate_signal_handler(int sig) {
