@@ -35,9 +35,6 @@ GPIO.output(LASER_GPIO, False)
 
 print "GPIO OK!\n"
 
-interrupt_signal_received = False
-sensor_daemon_proc = None
-
 print "Load routines.. "
 
 def main(): 
@@ -48,7 +45,7 @@ def main():
     # Initialize randomizer
     random.seed()
     
-    while not interrupt_signal_received:
+    while True:
         
         # React to sensor input
         sensor_signals = read_sensors()
@@ -71,6 +68,7 @@ def main():
             movement_result = subprocess.check_call([MOTORS_CMD, "FF"+str(distance)])
         except:
             pass
+    sensor_daemon_proc.kill()
         
 def back_away_from_obstacle():
     try:
@@ -107,5 +105,3 @@ def survey_surroundings():
 print "Routines OK!\n"
 
 main()
-if sensor_daemon_proc:
-    sensor_daemon_proc.kill()
