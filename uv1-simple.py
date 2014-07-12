@@ -35,20 +35,16 @@ GPIO.output(LASER_GPIO, False)
 
 print "GPIO OK!\n"
 
-motors_proc = None
-camera_proc = None
-other_proc = None
-sensor_signals = None
-interrupt_signal_received = False
-
 print "Load routines.. "
 
 def main(): 
+
+    sensor_signals = None
     
     # Initialize randomizer
     random.seed()
     
-    while not interrupt_signal_received:
+    while True:
         
         # React to sensor input
         sensor_signals = read_sensors()
