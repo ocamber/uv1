@@ -11,9 +11,6 @@ import subprocess
 import time
 import RPi.GPIO as GPIO
 
-# Use BCM GPIO references instead of physical pin numbers
-GPIO.setmode(GPIO.BCM)
-
 IMG_FILE = '/home/pi/UV1-IMG-%Y%m%d%H%M%S-'
 SENSOR_FILE = '/dev/shm/sensor_data'
 SENSORD_CMD = '/home/pi/src/uv1/sensord'
@@ -26,31 +23,30 @@ VIDEO_CMD = 'raspivid -n '
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
 
+print "GPIO setup.. "
+
+# Use BCM GPIO references instead of physical pin numbers
+GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(LIGHTS_GPIO, GPIO.OUT)
 GPIO.setup(LASER_GPIO, GPIO.OUT)
 GPIO.output(LIGHTS_GPIO, False)
 GPIO.output(LASER_GPIO, False)
 
-sensor_daemon_proc = None
+print "GPIO OK!\n"
+
 motors_proc = None
 camera_proc = None
 other_proc = None
 sensor_signals = None
-
-# Turn off lights and laser
-laser_on = False
-lights_on = True
-
 interrupt_signal_received = False
 
-def main(args): 
+print "Load routines.. "
+
+def main(): 
     
     # Initialize randomizer
     random.seed()
-
-    # Turn on sensors
-    sensor_daemon_proc = subprocess.Popen([SENSORD_CMD])
     
     while not interrupt_signal_received:
         
@@ -112,4 +108,7 @@ def survey_surroundings():
             break
         results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
-    
+
+print "Routines OK!\n"
+
+main()
