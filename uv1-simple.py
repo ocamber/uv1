@@ -22,8 +22,7 @@ PHOTO_CMD = 'raspistill -n -o '
 VIDEO_CMD = 'raspivid -n '
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
-
-print "GPIO setup.. "
+PARTIAL_TURN = "FR240"
 
 # Use BCM GPIO references instead of physical pin numbers
 GPIO.setmode(GPIO.BCM)
@@ -33,9 +32,7 @@ GPIO.setup(LASER_GPIO, GPIO.OUT)
 GPIO.output(LIGHTS_GPIO, False)
 GPIO.output(LASER_GPIO, False)
 
-print "GPIO OK!\n"
-
-print "Load routines.. "
+interrupt_signal_received = False
 
 def main(): 
 
@@ -45,7 +42,7 @@ def main():
     # Initialize randomizer
     random.seed()
     
-    while True:
+    while not interrupt_signal_received:
         
         # React to sensor input
         sensor_signals = read_sensors()
@@ -55,10 +52,14 @@ def main():
         if sensor_signals['obstacle'] or sensor_signals['touch']:
             back_away_from_obstacle()            
             continue
-
-        # Move random direction and distance
-        rotation = random.randint(100,1000)
-        distance = random.randint(1000,5000)
+            
+        # Move random direction and distance (if range < 10 cm turn a lot)
+        if sensor_signals['range'] < 10:
+            rotation = random.randint(400,1400)
+        else:
+            rotation = random.randint(100,400)
+            
+        distance = random.randint(2000,6000)
         movement_result = 0
         try:
             movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rotation)])
@@ -68,12 +69,16 @@ def main():
             movement_result = subprocess.check_call([MOTORS_CMD, "FF"+str(distance)])
         except:
             pass
+            
+        if random.randint(0,100) < 5:
+            data = survey_surroundings()
+             
     sensor_daemon_proc.kill()
         
 def back_away_from_obstacle():
     try:
         subprocess.check_call([RESET_SENSORS_CMD, "TO"])
-        subprocess.check_call([MOTORS_CMD, "RR300"])
+        subprocess.check_call([MOTORS_CMD, "RR200"])
     except:
         pass
         
@@ -101,7 +106,5 @@ def survey_surroundings():
         sensor_signals = read_sensors()
         results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
-
-print "Routines OK!\n"
 
 main()
