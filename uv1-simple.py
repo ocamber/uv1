@@ -86,7 +86,7 @@ def back_away_from_obstacle():
         pass
         
 def read_sensors():
-    results = ['touch':0, 'obstacle':0, 'sound':0, 'range':0 ]
+    results = { 'touch':0, 'obstacle':0, 'sound':0, 'range':0 }
     with open(SENSOR_FILE, 'r') as file:
         file_text = file.read()
     if file_text[0:1]=='T' and file_text[1:2]=='+':
