@@ -110,6 +110,6 @@ def survey_surroundings():
         if sensor_signals.sound:
             interrupt_signal_received = True
             break
-        results.append(['sensors':sensor_signals, 'image':img_file])
+        results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
     
