@@ -35,23 +35,27 @@ GPIO.output(LASER_GPIO, False)
 
 print "GPIO OK!\n"
 
+interrupt_signal_received = False
+sensor_daemon_proc = None
+
 print "Load routines.. "
 
 def main(): 
 
     sensor_signals = None
+    sensor_daemon_proc = subprocess.Popen([SENSORD_CMD])
     
     # Initialize randomizer
     random.seed()
     
-    while True:
+    while not interrupt_signal_received:
         
         # React to sensor input
         sensor_signals = read_sensors()
-        if sensor_signals.sound:
+        if sensor_signals['sound']:
             interrupt_signal_received = True
             break
-        if sensor_signals.obstacle or sensor_signals.touch:
+        if sensor_signals['obstacle'] or sensor_signals['touch']:
             back_away_from_obstacle()            
             continue
 
@@ -68,8 +72,6 @@ def main():
         except:
             pass
         
-    sensor_daemon_proc.kill()
-
 def back_away_from_obstacle():
     try:
         subprocess.check_call([RESET_SENSORS_CMD, "TO"])
@@ -82,13 +84,13 @@ def read_sensors():
     with open(SENSOR_FILE, 'r') as file:
         file_text = file.read()
     if file_text[0:1]=='T' and file_text[1:2]=='+':
-        results.touch = 1
+        results['touch'] = 1
     if file_text[2:3]=='O' and file_text[3:4]=='+':
-        results.obstacle = 1
+        results['obstacle'] = 1
     if file_text[4:5]=='S' and file_text[5:6]=='+':
-        results.sound = 1
+        results['sound'] = 1
     if file_text[6:7]=='R':
-        results.range = int(file_text[7:10], base=10)
+        results['range'] = int(file_text[7:10], base=10)
     return results
     
 def survey_surroundings():
@@ -99,12 +101,11 @@ def survey_surroundings():
         subprocess.call([MOTORS_CMD, PARTIAL_TURN])
         subprocess.call([PHOTO_CMD, img_file])
         sensor_signals = read_sensors()
-        if sensor_signals.sound:
-            interrupt_signal_received = True
-            break
         results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
 
 print "Routines OK!\n"
 
 main()
+if sensor_daemon_proc:
+    sensor_daemon_proc.kill()
