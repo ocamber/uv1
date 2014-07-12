@@ -14,12 +14,6 @@ import RPi.GPIO as GPIO
 # Use BCM GPIO references instead of physical pin numbers
 GPIO.setmode(GPIO.BCM)
 
-# Set up for direct control of lights and laser
-GPIO.setup(LIGHTS_GPIO, GPIO.OUT)
-GPIO.setup(LASER_GPIO, GPIO.OUT)
-GPIO.output(LIGHTS_GPIO, False)
-GPIO.output(LASER_GPIO, False)
-
 IMG_FILE = '/home/pi/UV1-IMG-%Y%m%d%H%M%S-'
 SENSOR_FILE = '/dev/shm/sensor_data'
 SENSORD_CMD = '/home/pi/src/uv1/sensord'
@@ -31,6 +25,11 @@ PHOTO_CMD = 'raspistill -n -o '
 VIDEO_CMD = 'raspivid -n '
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
+
+GPIO.setup(LIGHTS_GPIO, GPIO.OUT)
+GPIO.setup(LASER_GPIO, GPIO.OUT)
+GPIO.output(LIGHTS_GPIO, False)
+GPIO.output(LASER_GPIO, False)
 
 sensor_daemon_proc = None
 motors_proc = None
