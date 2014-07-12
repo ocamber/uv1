@@ -96,7 +96,7 @@ def read_sensors():
 def survey_surroundings():
     results = []
     img_file_prefix = datetime.datetime.now().strftime(IMG_FILE)
-    for i in range(0, 9):
+    for i in range(0, 10):
         img_file = img_file_prefix + str(i) + '.jpg'
         try:
             subprocess.check_call([MOTORS_CMD, PARTIAL_TURN])
