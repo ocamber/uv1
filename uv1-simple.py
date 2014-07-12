@@ -32,8 +32,6 @@ GPIO.setup(LASER_GPIO, GPIO.OUT)
 GPIO.output(LIGHTS_GPIO, False)
 GPIO.output(LASER_GPIO, False)
 
-interrupt_signal_received = False
-
 def main(): 
 
     sensor_signals = None
@@ -42,12 +40,11 @@ def main():
     # Initialize randomizer
     random.seed()
     
-    while not interrupt_signal_received:
+    while True:
         
         # React to sensor input
         sensor_signals = read_sensors()
         if sensor_signals['sound']:
-            interrupt_signal_received = True
             break
         if sensor_signals['obstacle'] or sensor_signals['touch']:
             back_away_from_obstacle()            
