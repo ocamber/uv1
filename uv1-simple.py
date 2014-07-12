@@ -18,8 +18,8 @@ MOTORS_CMD = '/home/pi/src/uv1/motors'
 LIGHTS_CMD = '/home/pi/src/uv1/lights'
 LASER_CMD = '/home/pi/src/uv1/laser'
 RESET_SENSORS_CMD = '/home/pi/src/uv1/reset_sensors'
-PHOTO_CMD = 'raspistill -n -o '
-VIDEO_CMD = 'raspivid -n '
+PHOTO_CMD = 'raspistill'
+VIDEO_CMD = 'raspivid'
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
 PARTIAL_TURN = "FR240"
@@ -98,8 +98,11 @@ def survey_surroundings():
     img_file_prefix = datetime.datetime.now().strftime(IMG_FILE)
     for i in range(0, 9):
         img_file = img_file_prefix + str(i) + '.jpg'
-        subprocess.call([MOTORS_CMD, PARTIAL_TURN])
-        subprocess.call([PHOTO_CMD, img_file])
+        try:
+            subprocess.check_call([MOTORS_CMD, PARTIAL_TURN])
+            subprocess.check_call([PHOTO_CMD, "-n", "-o", img_file])
+        except:
+            pass
         sensor_signals = read_sensors()
         results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
