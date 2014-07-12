@@ -8,7 +8,7 @@
 # Import required Python libraries
 import random
 import subprocess
-import time
+import datetime
 import RPi.GPIO as GPIO
 
 IMG_FILE = '/home/pi/UV1-IMG-%Y%m%d%H%M%S-'
