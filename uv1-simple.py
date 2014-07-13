@@ -17,7 +17,6 @@ SENSORD_CMD = '/home/pi/src/uv1/sensord'
 MOTORS_CMD = '/home/pi/src/uv1/motors'
 LIGHTS_CMD = '/home/pi/src/uv1/lights'
 LASER_CMD = '/home/pi/src/uv1/laser'
-RESET_SENSORS_CMD = '/home/pi/src/uv1/reset_sensors'
 PHOTO_CMD = 'raspistill'
 VIDEO_CMD = 'raspivid'
 LIGHTS_GPIO = 14
@@ -40,10 +39,10 @@ GPIO.setup(LASER_GPIO, GPIO.OUT)
 GPIO.output(LIGHTS_GPIO, False)
 GPIO.output(LASER_GPIO, False)
 
+
 def main(): 
 
     sensor_signals = None
-    sensor_daemon_proc = subprocess.Popen([SENSORD_CMD])
     
     # Initialize randomizer
     random.seed()
@@ -66,15 +65,15 @@ def main():
         distance = random.randint(50,300)
         movement_result = proceed(rotation, distance)
         data = survey_surroundings()
-                         
-    sensor_daemon_proc.kill()
-        
+
+
 def proceed(rotation, distance):
     # convert degrees and cm to motor control values
     rot_value = int(rotation * MOTOR_DEG + 0.5)
     dist_value = int(distance * MOTOR_CM + 0.5)
     sensor_signals = read_sensors()
-    if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
+    if sensor_signals['sound'] or sensor_signals['obstacle'] \
+    or sensor_signals['touch'] or sensor_signals['range'] < 10:
         return
     try:
         movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rot_value)])
@@ -82,7 +81,8 @@ def proceed(rotation, distance):
         pass    
     remainder = dist_value
     while remainder > 0:
-        if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
+        if sensor_signals['sound'] or sensor_signals['obstacle'] \
+        or sensor_signals['touch'] or sensor_signals['range'] < 10:
             return
         interval = remainder
         if interval > CORRECTION_INTERVAL:
@@ -106,6 +106,7 @@ def back_away_from_obstacle():
     except:
         pass
         
+
 def read_sensors():
     results = { 'touch':0, 'obstacle':0, 'sound':0, 'range':0 }
     with open(SENSOR_FILE, 'r') as file:
@@ -120,6 +121,7 @@ def read_sensors():
         results['range'] = int(file_text[7:10], base=10)
     return results
     
+
 def survey_surroundings():
     results = []
     img_file_prefix = datetime.datetime.now().strftime(IMG_FILE)
@@ -133,5 +135,6 @@ def survey_surroundings():
         sensor_signals = read_sensors()
         results.append({ 'sensors':sensor_signals, 'image':img_file })
     return results
+
 
 main()
