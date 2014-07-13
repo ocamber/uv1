@@ -81,6 +81,7 @@ def proceed(rotation, distance):
         pass    
     remainder = dist_value
     while remainder > 0:
+        sensor_signals = read_sensors()
         if sensor_signals['sound'] or sensor_signals['obstacle'] \
         or sensor_signals['touch'] or sensor_signals['range'] < 10:
             return
