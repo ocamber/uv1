@@ -76,7 +76,7 @@ def proceed(rotation, distance):
     or sensor_signals['touch'] or sensor_signals['range'] < 10:
         return
     try:
-        movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rot_value)])
+        movement_result = subprocess.call([MOTORS_CMD, "FR"+str(rot_value)])
     except:
         pass    
     remainder = dist_value
@@ -88,21 +88,21 @@ def proceed(rotation, distance):
         if interval > CORRECTION_INTERVAL:
             interval = CORRECTION_INTERVAL
         try:
-            movement_result = subprocess.check_call([MOTORS_CMD, "FF"+str(interval)])
+            movement_result = subprocess.call([MOTORS_CMD, "FF"+str(interval)])
         except:
             pass
         remainder = remainder - interval;
         correction = int(CORRECTION_RATIO * interval)
         try:
-            movement_result = subprocess.check_call([MOTORS_CMD, MOTOR_CORRECTION+str(correction)])
+            movement_result = subprocess.call([MOTORS_CMD, MOTOR_CORRECTION+str(correction)])
         except:
             pass
         
     
 def back_away_from_obstacle():
     try:
-        subprocess.check_call([RESET_SENSORS_CMD, PROXIMITY_SENSORS])
-        subprocess.check_call([MOTORS_CMD, BACK_AWAY])
+        subprocess.call([RESET_SENSORS_CMD, PROXIMITY_SENSORS])
+        subprocess.call([MOTORS_CMD, BACK_AWAY])
     except:
         pass
         
@@ -126,10 +126,12 @@ def survey_surroundings():
     results = []
     img_file_prefix = datetime.datetime.now().strftime(IMG_FILE)
     for i in range(0, 10):
+        if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
+            return results        
         img_file = img_file_prefix + str(i) + '.jpg'
         try:
-            subprocess.check_call([MOTORS_CMD, PARTIAL_TURN])
-            subprocess.check_call([PHOTO_CMD, "-n", "-o", img_file])
+            subprocess.call([MOTORS_CMD, PARTIAL_TURN])
+            subprocess.call([PHOTO_CMD, "-n", "-o", img_file])
         except:
             pass
         sensor_signals = read_sensors()
