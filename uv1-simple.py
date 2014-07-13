@@ -22,7 +22,14 @@ PHOTO_CMD = 'raspistill'
 VIDEO_CMD = 'raspivid'
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
-PARTIAL_TURN = "FR240"
+MOTOR_CORRECTION = "FC"
+CORRECTION_RATIO = 0.1
+MOTOR_DEG = 5.83 
+MOTOR_CM = 52.5
+PROXIMITY_SENSORS = "TO"
+PARTIAL_TURN = "FR210"
+BACK_AWAY = "RR200"
+
 
 # Use BCM GPIO references instead of physical pin numbers
 GPIO.setmode(GPIO.BCM)
@@ -52,30 +59,44 @@ def main():
             
         # Move random direction and distance (if range < 10 cm turn a lot)
         if sensor_signals['range'] < 10:
-            rotation = random.randint(400,1400)
+            rotation = random.randint(90,180)
         else:
-            rotation = random.randint(100,400)
-            
-        distance = random.randint(2000,6000)
-        movement_result = 0
-        try:
-            movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rotation)])
-        except:
-            pass
-        try:
-            movement_result = subprocess.check_call([MOTORS_CMD, "FF"+str(distance)])
-        except:
-            pass
-            
-        if random.randint(0,100) < 5:
-            data = survey_surroundings()
-             
+            rotation = random.randint(30,230)            
+        distance = random.randint(50,300)
+        movement_result = proceed(rotation, distance)
+        data = survey_surroundings()
+                         
     sensor_daemon_proc.kill()
         
+def proceed(rotation, distance):
+    # convert degrees and cm to motor control values
+    rot_value = int(rotation * MOTOR_DEG + 0.5)
+    dist_value = int(distance * MOTOR_CM + 0.5)
+    try:
+        movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rot_value)])
+    except:
+        pass    
+    remainder = dist_value
+    while remainder > 0:
+        interval = remainder
+        if interval > CORRECTION_INTERVAL:
+            interval = CORRECTION_INTERVAL
+        try:
+            movement_result = subprocess.check_call([MOTORS_CMD, "FF"+str(interval)])
+        except:
+            pass
+        remainder = remainder - interval;
+        correction = int(CORRECTION_RATIO * interval)
+        try:
+            movement_result = subprocess.check_call([MOTORS_CMD, MOTOR_CORRECTION+str(correction)])
+        except:
+            pass
+        
+    
 def back_away_from_obstacle():
     try:
-        subprocess.check_call([RESET_SENSORS_CMD, "TO"])
-        subprocess.check_call([MOTORS_CMD, "RR200"])
+        subprocess.check_call([RESET_SENSORS_CMD, PROXIMITY_SENSORS])
+        subprocess.check_call([MOTORS_CMD, BACK_AWAY])
     except:
         pass
         
