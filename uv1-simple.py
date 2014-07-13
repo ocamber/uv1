@@ -23,7 +23,7 @@ VIDEO_CMD = 'raspivid'
 LIGHTS_GPIO = 14
 LASER_GPIO  = 7
 MOTOR_CORRECTION = "FC"
-CORRECTION_RATIO = 0.1
+CORRECTION_RATIO = 0.15
 CORRECTION_INTERVAL = 500
 MOTOR_DEG = 5.83 
 MOTOR_CM = 52.5
@@ -73,12 +73,17 @@ def proceed(rotation, distance):
     # convert degrees and cm to motor control values
     rot_value = int(rotation * MOTOR_DEG + 0.5)
     dist_value = int(distance * MOTOR_CM + 0.5)
+    sensor_signals = read_sensors()
+    if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
+        return
     try:
         movement_result = subprocess.check_call([MOTORS_CMD, "FR"+str(rot_value)])
     except:
         pass    
     remainder = dist_value
     while remainder > 0:
+        if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
+            return
         interval = remainder
         if interval > CORRECTION_INTERVAL:
             interval = CORRECTION_INTERVAL
