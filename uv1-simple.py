@@ -127,6 +127,7 @@ def survey_surroundings():
     results = []
     img_file_prefix = datetime.datetime.now().strftime(IMG_FILE)
     for i in range(0, 10):
+        sensor_signals = read_sensors()
         if sensor_signals['sound'] or sensor_signals['obstacle'] or sensor_signals['touch']:
             return results        
         img_file = img_file_prefix + str(i) + '.jpg'
