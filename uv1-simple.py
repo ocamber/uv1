@@ -14,6 +14,7 @@ import RPi.GPIO as GPIO
 IMG_FILE = '/home/pi/UV1-IMG-%Y%m%d%H%M%S-'
 SENSOR_FILE = '/dev/shm/sensor_data'
 SENSORD_CMD = '/home/pi/src/uv1/sensord'
+RESET_SENSORS_CMD = '/home/pi/src/uv1/reset_sensors'
 MOTORS_CMD = '/home/pi/src/uv1/motors'
 LIGHTS_CMD = '/home/pi/src/uv1/lights'
 LASER_CMD = '/home/pi/src/uv1/laser'
