@@ -99,7 +99,7 @@ def go_forward(cm):
         movement_result = subprocess.call([MOTORS_CMD, motors+str(ms)])
         motors = "CF"
         subprocess.call([MOTORS_CMD, motors+str(ms)])
-    else
+    else:
         motors = "FF"
         movement_result = subprocess.call([MOTORS_CMD, motors+str(ms)])
         motors = "FC"
