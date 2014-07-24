@@ -99,17 +99,14 @@ def go_forward(cm):
         motors = "RR"
         movement_result = subprocess.call([MOTORS_CMD, motors+str(ms)])
         motors = "CF"
-        subprocess.call([MOTORS_CMD, motors+str(ms)])
     else:
         motors = "FF"
         movement_result = subprocess.call([MOTORS_CMD, motors+str(ms)])
         motors = "FC"
-        subprocess.call([MOTORS_CMD, motors+str(ms)])
 
     # Execute turn to correct straightness
-    # ms = float(MOTOR_CORRECTION_RATIO * ms)
-    # subprocess.call([MOTORS_CMD, motors+str(int(ms))])
-    # log_motion(movement_result)
+    subprocess.call([MOTORS_CMD, motors+str(int(MOTOR_CORRECTION_RATIO * ms))])
+    log_motion(movement_result)
     return movement_result
 
 def back_away_from_obstacle():
