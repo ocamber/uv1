@@ -63,16 +63,16 @@ def main():
             continue
             
         # Periodically scan surroundings
-        if random.randint(0,10)<1:
+        if random.randint(0,20)<1:
             survey_surroundings()
 
         # Periodically rotate to new direction
-        if random.randint(0,10)<3:
-            rotate(random.randint(-60,60))
+        if random.randint(0,10)<2:
+            rotate(random.randint(0,180) - 90)
             continue
 
         # Go forward random cm to a new position
-        go_forward(random.randint(5,MAX_MOTOR_INTERVAL_CM))
+        go_forward(random.randint(50,MAX_MOTOR_INTERVAL_CM))
 
 def rotate(degrees):
     if not degrees:
