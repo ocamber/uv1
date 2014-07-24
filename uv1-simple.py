@@ -106,7 +106,7 @@ def go_forward(cm):
         subprocess.call([MOTORS_CMD, motors+str(ms)])
 
     # Execute turn to correct straightness
-    subprocess.call([MOTORS_CMD, motors+str(int(CORRECTION_RATIO * ms))])
+    subprocess.call([MOTORS_CMD, motors+str(int(MOTOR_CORRECTION_RATIO * ms))])
     log_motion(movement_result)
     return movement_result
 
@@ -152,10 +152,10 @@ def survey_surroundings():
     log_survey(survey)
     return survey
 
-def log_survey():
+def log_survey(survey):
     pass
 
-def log_motion():
+def log_motion(movement_result):
     pass
     
 main()
