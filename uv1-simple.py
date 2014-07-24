@@ -25,7 +25,7 @@ LASER_GPIO  = 7
 FWD_MOTOR_CORRECTION = "FC"
 RVS_MOTOR_CORRECTION = "CF"
 MOTOR_CORRECTION_RATIO = 0.05
-MAX_MOTOR_INTERVAL_CM = 10
+MAX_MOTOR_INTERVAL_CM = 20
 MOTOR_MS_PER_DEG = 5.83
 MOTOR_MS_PER_CM = 52.5
 PROXIMITY_SENSORS = "TO"
@@ -72,7 +72,7 @@ def main():
             continue
 
         # Go forward random cm to a new position
-        go_forward(random.randint(50,MAX_MOTOR_INTERVAL_CM))
+        go_forward(random.randint(0,MAX_MOTOR_INTERVAL_CM) + 10)
 
 def rotate(degrees):
     if not degrees:
