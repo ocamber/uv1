@@ -68,7 +68,7 @@ def main():
 
         # Periodically rotate to new direction
         if random.randint(0,10)<2:
-            rotate(random.randint(0,180) - 90)
+            rotate(random.randint(0,90) - 45)
             continue
 
         # Go forward random cm to a new position
