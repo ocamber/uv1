@@ -107,7 +107,8 @@ def go_forward(cm):
         subprocess.call([MOTORS_CMD, motors+str(ms)])
 
     # Execute turn to correct straightness
-    subprocess.call([MOTORS_CMD, motors+str(int(MOTOR_CORRECTION_RATIO * ms))])
+    ms = MOTOR_CORRECTION_RATIO * ms
+    subprocess.call([MOTORS_CMD, motors+str(int(ms))])
     log_motion(movement_result)
     return movement_result
 
