@@ -112,13 +112,12 @@ int main(void) {
 
     // GPIO signal handlers
 
-    wiringPiISR(TOUCH_GPIO, INT_EDGE_RISING, &touch_handler);
+    wiringPiISR(RANGE_ECHO_GPIO, INT_EDGE_BOTH, &range_echo_handler);
     wiringPiISR(OBSTACLE_F_GPIO, INT_EDGE_FALLING, &obstacle_f_handler);
     wiringPiISR(OBSTACLE_B_GPIO, INT_EDGE_FALLING, &obstacle_b_handler);
     wiringPiISR(OBSTACLE_L_GPIO, INT_EDGE_FALLING, &obstacle_l_handler);
     wiringPiISR(OBSTACLE_R_GPIO, INT_EDGE_FALLING, &obstacle_r_handler);
     wiringPiISR(SOUND_GPIO, INT_EDGE_FALLING, &sound_handler);
-    wiringPiISR(RANGE_ECHO_GPIO, INT_EDGE_BOTH, &range_echo_handler);
 
     // Range finder scan loop
 
