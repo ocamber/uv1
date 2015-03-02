@@ -19,5 +19,5 @@ sensors.o : sensors.c sensors.h gpio_pins.h 	# Sensor support functions
 	gcc -lwiringPi -c sensors.c -o sensors.o
 
 clean : 
-	rm lights laser buzzer motors reset_sensors sensord sensors.o
+	rm lights laser motors reset_sensors sensord sensors.o
 	
