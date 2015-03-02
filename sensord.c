@@ -24,10 +24,9 @@
 
 void terminate_signal_handler(int sig);
 
-void touch_handler(void);
+void range_echo_handler(void);
 void obstacle_handler(void);
 void sound_handler(void);
-void range_echo_handler(void);
 
 static struct timespec echo_start;      // Start time of range echo signal 
         // Rangefinder sets pin HIGH for the time it took the pulse to leave and return as echo
@@ -95,9 +94,10 @@ int main(void) {
 
     // Input pins
 
-    pinMode (TOUCH_GPIO, INPUT);
-    pullUpDnControl(TOUCH_GPIO, PUD_DOWN);
-    pinMode (OBSTACLE_GPIO, INPUT);
+    pinMode (OBSTACLE_B_GPIO, INPUT);
+    pinMode (OBSTACLE_F_GPIO, INPUT);
+    pinMode (OBSTACLE_L_GPIO, INPUT);
+    pinMode (OBSTACLE_R_GPIO, INPUT);
     pinMode (SOUND_GPIO, INPUT);
     pinMode (RANGE_ECHO_GPIO, INPUT);
 
@@ -113,7 +113,10 @@ int main(void) {
     // GPIO signal handlers
 
     wiringPiISR(TOUCH_GPIO, INT_EDGE_RISING, &touch_handler);
-    wiringPiISR(OBSTACLE_GPIO, INT_EDGE_FALLING, &obstacle_handler);
+    wiringPiISR(OBSTACLE_F_GPIO, INT_EDGE_FALLING, &obstacle_f_handler);
+    wiringPiISR(OBSTACLE_B_GPIO, INT_EDGE_FALLING, &obstacle_b_handler);
+    wiringPiISR(OBSTACLE_L_GPIO, INT_EDGE_FALLING, &obstacle_l_handler);
+    wiringPiISR(OBSTACLE_R_GPIO, INT_EDGE_FALLING, &obstacle_r_handler);
     wiringPiISR(SOUND_GPIO, INT_EDGE_FALLING, &sound_handler);
     wiringPiISR(RANGE_ECHO_GPIO, INT_EDGE_BOTH, &range_echo_handler);
 
@@ -166,20 +169,25 @@ int main(void) {
     exit(EXIT_SUCCESS);
 }    
 
-void touch_handler() {
-    if (sensor_values->touch == TOUCH_INDICATOR) {
-        return;         // If a touch was already detected, exit here
-    }
-    sensor_values->touch_val = POSITIVE_VAL;
-    sensor_values->touch = TOUCH_INDICATOR;
-    write_sensor_file(sensor_values);
+
+void obstacle_l_handler() {
+    set_obstacle_indicator(OBSTACLE_LEFT_INDEX);
 }
 
-void obstacle_handler() {
-    if (sensor_values->obstacle == OBSTACLE_INDICATOR) {
-        return;         // If an obstacle was already detected, exit here
-    }
-    sensor_values->obstacle_val = POSITIVE_VAL;
+void obstacle_f_handler() {
+    set_obstacle_indicator(OBSTACLE_FWD_INDEX);
+}
+
+void obstacle_r_handler() {
+    set_obstacle_indicator(OBSTACLE_RIGHT_INDEX);
+}
+
+void obstacle_b_handler() {
+    set_obstacle_indicator(OBSTACLE_BACK_INDEX);
+}
+
+void obstacle_handler(int obstIndex) {
+    sensor_values->obstacle_val[obstIndex] = POSITIVE_VAL;
     sensor_values->obstacle = OBSTACLE_INDICATOR;
     write_sensor_file(sensor_values);
 }

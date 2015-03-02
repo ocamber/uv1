@@ -17,10 +17,9 @@ static int shared_memory_id;
 int main(int argc, char **argv)
 {
     bool ok_args = (argc == 2);
-    bool reset_touch = false;
+    bool reset_range = false;
     bool reset_obstacle = false;
     bool reset_sound = false;
-    bool reset_range = false;
     
     if (ok_args)
     {
@@ -29,9 +28,9 @@ int main(int argc, char **argv)
         for (i=0; i < strlen(arg); i++) {
             char c = arg[i];
             switch (c) {
-                case 't':
-                case 'T':
-                    reset_touch = true;
+                case 'r':
+                case 'R':
+                    reset_range = true;
                     break;
                 case 'o':
                 case 'O':
@@ -41,10 +40,6 @@ int main(int argc, char **argv)
                 case 'S':
                     reset_sound = true;
                     break;
-                case 'r':
-                case 'R':
-                    reset_range = true;
-                    break;
                 default:
                 ok_args = false;
             }
@@ -53,7 +48,7 @@ int main(int argc, char **argv)
 
     if (! ok_args)
     {
-        fprintf(stderr, "Usage: reset_sensors [t|o|s|r]\n");
+        fprintf(stderr, "Usage: reset_sensors [r|o|s]\n");
         fflush(stderr);
         exit(EXIT_FAILURE);
     }
@@ -81,9 +76,9 @@ int main(int argc, char **argv)
     * Reset values per arg
     */
     
-    if (reset_touch)
+    if (reset_range)
     {
-        reset_touch_value(sensor_values);
+        reset_range_value(sensor_values);
     }
     
     if (reset_obstacle)
@@ -94,11 +89,6 @@ int main(int argc, char **argv)
     if (reset_sound)
     {
         reset_sound_value(sensor_values);
-    }
-    
-    if (reset_range)
-    {
-        reset_range_value(sensor_values);
     }
     
     /**

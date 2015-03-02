@@ -71,26 +71,10 @@ size_t write_sensor_file(SENSOR_DATA *sensor_values) {
 }
 
 void clear_sensor_values(SENSOR_DATA *sensor_values) {
-	reset_touch_value(sensor_values);
+    reset_range_value(sensor_values);
 	reset_obstacle_value(sensor_values);
 	reset_sound_value(sensor_values);
-    reset_range_value(sensor_values);
 	sensor_values->end_mark = SENSOR_DATA_END_MARK;
-}
-
-void reset_touch_value(SENSOR_DATA *sensor_values) {
-	sensor_values->touch = NO_TOUCH_INDICATOR;
-	sensor_values->touch_val = NEGATIVE_VAL;
-}
-
-void reset_obstacle_value(SENSOR_DATA *sensor_values) {
-	sensor_values->obstacle = NO_OBSTACLE_INDICATOR;
-	sensor_values->obstacle_val = NEGATIVE_VAL;
-}
-
-void reset_sound_value(SENSOR_DATA *sensor_values) {
-	sensor_values->sound = NO_SOUND_INDICATOR;
-	sensor_values->sound_val = NEGATIVE_VAL;
 }
 
 void reset_range_value(SENSOR_DATA *sensor_values) {
@@ -99,3 +83,16 @@ void reset_range_value(SENSOR_DATA *sensor_values) {
 	sensor_values->range_val[1] = '0';
 	sensor_values->range_val[2] = '0';
 }
+void reset_obstacle_value(SENSOR_DATA *sensor_values) {
+	sensor_values->obstacle = NO_OBSTACLE_INDICATOR;
+	sensor_values->obstacle_val[0] = NEGATIVE_VAL;
+	sensor_values->obstacle_val[1] = NEGATIVE_VAL;
+	sensor_values->obstacle_val[2] = NEGATIVE_VAL;
+	sensor_values->obstacle_val[3] = NEGATIVE_VAL;
+}
+
+void reset_sound_value(SENSOR_DATA *sensor_values) {
+	sensor_values->sound = NO_SOUND_INDICATOR;
+	sensor_values->sound_val = NEGATIVE_VAL;
+}
+
