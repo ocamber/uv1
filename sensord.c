@@ -25,7 +25,10 @@
 void terminate_signal_handler(int sig);
 
 void range_echo_handler(void);
-void obstacle_handler(void);
+void obstacle_f_handler(void);
+void obstacle_l_handler(void);
+void obstacle_r_handler(void);
+void obstacle_b_handler(void);
 void sound_handler(void);
 
 static struct timespec echo_start;      // Start time of range echo signal 
