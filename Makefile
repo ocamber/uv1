@@ -1,4 +1,4 @@
-all : sensord reset_sensors lights laser buzzer motors	# Build everything
+all : sensord reset_sensors lights laser motors	# Build everything
 
 sensord : sensord.c sensors.o	# Sensor Daemon
 	gcc -lwiringPi -lrt sensors.o sensord.c -o sensord
@@ -11,9 +11,6 @@ lights : lights.c gpio_pins.h		# App to turn forwrd lights on or off
 
 laser : laser.c gpio_pins.h		# App to turn forward laser on or off
 	gcc -lwiringPi laser.c -o laser
-
-buzzer : buzzer.c gpio_pins.h		# App to turn buzzer on or off
-	gcc -lwiringPi buzzer.c -o buzzer
 
 motors : motors.c sensors.o gpio_pins.h		# App to run the motors
 	gcc -lwiringPi sensors.o motors.c -o motors
