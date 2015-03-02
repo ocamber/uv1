@@ -169,16 +169,27 @@ int execute_motion(char *data)
             {
                 break;
             }
-            if (sensor_values->touch_val == POSITIVE_VAL 
-                && (left_motion=='F' || right_motion=='F'))
+
+            if (left_motion=='F' 
+                && (sensor_values->obstacle_val[OBSTACLE_FWD_INDEX] == POSITIVE_VAL
+                    || sensor_values->obstacle_val[OBSTACLE_RIGHT_INDEX] == POSITIVE_VAL))
             {
                 break;
             }
-            if (sensor_values->obstacle_val == POSITIVE_VAL
-                && (left_motion=='F' && right_motion=='F'))
+                
+            if (right_motion=='F'
+                && (sensor_values->obstacle_val[OBSTACLE_FWD_INDEX] == POSITIVE_VAL
+                    || sensor_values->obstacle_val[OBSTACLE_LEFT_INDEX] == POSITIVE_VAL))
             {
                 break;
             }
+
+            if ((left_motion=='R' || right_motion=='R')
+                && sensor_values->obstacle_val[OBSTACLE_BACK_INDEX] == POSITIVE_VAL)
+            {
+                break;
+            }
+
             remaining_duration --;
             delay(1);
         }
