@@ -29,6 +29,7 @@ void obstacle_f_handler(void);
 void obstacle_l_handler(void);
 void obstacle_r_handler(void);
 void obstacle_b_handler(void);
+void set_obstacle_indicator(int);
 void sound_handler(void);
 
 static struct timespec echo_start;      // Start time of range echo signal 
@@ -188,7 +189,7 @@ void obstacle_b_handler() {
     set_obstacle_indicator(OBSTACLE_BACK_INDEX);
 }
 
-void obstacle_handler(int obstIndex) {
+void set_obstacle_indicator(int obstIndex) {
     sensor_values->obstacle_val[obstIndex] = POSITIVE_VAL;
     sensor_values->obstacle = OBSTACLE_INDICATOR;
     write_sensor_file(sensor_values);
