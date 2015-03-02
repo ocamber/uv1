@@ -213,11 +213,11 @@ void range_echo_handler() {
     // Handle start of echo signal
     if (sensor_values->range == NO_RANGE_INDICATOR && pin_value == HIGH) {
         clock_gettime(CLOCK_REALTIME, &echo_start);
-        sensor_values->range = ECHO_INDICATOR;
+        sensor_values->range = RANGE_INDICATOR;
         return;
     }
     
-    if ( ! (sensor_values->range == ECHO_INDICATOR && pin_value == LOW) ) {
+    if ( ! (sensor_values->range == RANGE_INDICATOR && pin_value == LOW) ) {
         return;
     }
     
