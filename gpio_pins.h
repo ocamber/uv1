@@ -15,12 +15,12 @@
 //      UART0_TXD               14      08  Yellow
 //      Ground                          09  Black
 //      UART0_RXD               15      10  Green
-#define OBSTACLE_B_GPIO         17  //  11  Blue
+#define LEFT_MOTOR_FWD_GPIO     17  //  11  Blue
 //      PCM_CLK                 18      12  Gray
-#define OBSTACLE_F_GPIO         27  //  13  Green
+#define LEFT_MOTOR_REV_GPIO     27  //  13  Green
 //      Ground                          14  Black
-#define OBSTACLE_L_GPIO         22  //  15  Yellow
-#define OBSTACLE_R_GPIO         23  //  16  Orange
+#define RIGHT_MOTOR_FWD_GPIO    22  //  15  Yellow
+#define RIGHT_MOTOR_REV_GPIO    23  //  16  Orange
 //      3V Power                        17  Orange
 #define LASER_GPIO              24  //  18  Red
 //      SPI0_MOSI               10  //  19  --
@@ -39,9 +39,9 @@
 //                              12  //  32  Blue    <-- AVAIL
 //                              13  //  33  Green   <-- AVAIL
 //      Ground                          34  Black
-#define LEFT_MOTOR_FWD_GPIO     19  //  35  Blue
-#define LEFT_MOTOR_REV_GPIO     16  //  36  Purple
-#define RIGHT_MOTOR_FWD_GPIO    26  //  37  Green
-#define RIGHT_MOTOR_REV_GPIO    20  //  38  Gray
+#define OBSTACLE_F_GPIO         19  //  35  Blue
+#define OBSTACLE_B_GPIO         16  //  36  Purple
+#define OBSTACLE_L_GPIO         26  //  37  Green
+#define OBSTACLE_R_GPIO         20  //  38  Gray
 //      Ground                          39  Black
 //                              21  //  40  White   <-- AVAIL
