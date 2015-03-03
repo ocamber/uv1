@@ -39,8 +39,8 @@
 //                              12  //  32  Blue    <-- AVAIL
 //                              13  //  33  Green   <-- AVAIL
 //      Ground                          34  Black
-#define OBSTACLE_F_GPIO         19  //  35  Blue
-#define OBSTACLE_B_GPIO         16  //  36  Purple
+#define OBSTACLE_B_GPIO         19  //  35  Blue
+#define OBSTACLE_F_GPIO         16  //  36  Purple
 #define OBSTACLE_L_GPIO         26  //  37  Green
 #define OBSTACLE_R_GPIO         20  //  38  Gray
 //      Ground                          39  Black
