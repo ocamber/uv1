@@ -62,11 +62,12 @@ int main(int argc, char **argv)
         printf("                            -or-\n");
         printf("       {filename} is the path to a file with motion entries as described above,\n");
         printf("       one entry per line.\n\n");
-        printf("Args:  +i - Halt on impact (default).\n");
-        printf("       -i - Execute motion even if sensors detect impact.\n");
-        printf("       +o - Halt on obstacle detection (default).\n");
-        printf("       -o - Execute motion even if sensors detect obstacle.\n\n\n");
-        printf("Note:  Unless overridden motion will halt if a sensor detects obstacle or impact.\n");
+        printf("Args:  +i Halt on impact (default).\n");
+        printf("       -i   Execute motion even if sensors detect impact.\n");
+        printf("       +o   Halt on obstacle detection (default).\n");
+        printf("       -o   Execute motion even if sensors detect obstacle.\n\n");
+        printf("Note:  Motion will halt if a sensor detects obstacle or impact\n");
+        printf("            unless overridden by args.\n");
         printf("       Motion will always halt if a sensor detects a sharp sound.\n");
         return SYNTAX_ERR;
     }
