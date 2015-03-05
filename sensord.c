@@ -190,31 +190,38 @@ void set_positive(char indicator, char *indic_ptr, char *values, int direction) 
 }
 
 void impact_f_handler() {
-    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, &sensor_values->impact_val, IDX_FWD);
+    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, 
+                    (char *) &sensor_values->impact_val, IDX_FWD);
 }
 
 void impact_b_handler() {
-    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, &sensor_values->impact_val, IDX_BACK);
+    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, 
+                    (char *) &sensor_values->impact_val, IDX_BACK);
 }
 
 void obstacle_f_handler() {
-    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_FWD);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, 
+                    (char *) &sensor_values->obstacle_val, IDX_FWD);
 }
 
 void obstacle_b_handler() {
-    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_BACK);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, 
+                    (char *) &sensor_values->obstacle_val, IDX_BACK);
 }
 
 void obstacle_l_handler() {
-    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_LEFT);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, 
+                    (char *) &sensor_values->obstacle_val, IDX_LEFT);
 }
 
 void obstacle_r_handler() {
-    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_RIGHT);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, 
+                    (char *) &sensor_values->obstacle_val, IDX_RIGHT);
 }
 
 void sound_handler() {
-    set_positive(SOUND_INDICATOR, &sensor_values->sound_indic, &sensor_values->sound_val, 0);
+    set_positive(SOUND_INDICATOR, &sensor_values->sound_indic, 
+                    &sensor_values->sound_val, 0);
 }
 
 void range_echo_handler() {
