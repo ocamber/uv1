@@ -139,10 +139,10 @@ bool motor_setting_err(char setting) {
 
 bool motion_syntax_err(char *motion) {
     int test_value;
-    if (motion_indicator_err(motion[0])) {  // Left motor
+    if (motor_setting_err(motion[0])) {  // Left motor
         return false;
     }
-    if (motion_indicator_err(motion[1])) {  // Right motor
+    if (motor_setting_err(motion[1])) {  // Right motor
         return false;
     }
     if (sscanf( (motion + 2), "%d", &test_value ) < 1) {
