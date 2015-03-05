@@ -38,7 +38,8 @@ int main(int argc, char **argv)
 {   
     // Test args
     bool bad_args = false;
-    for (int i = 0; !bad_args && i < argc; i++) {
+    int i;
+    for (i = 0; !bad_args && i < argc; i++) {
         if (strcmp("+i", argv[i]) == 0) {
             continue;
         }
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
     pinMode (RIGHT_MOTOR_FWD_GPIO, OUTPUT);
     pinMode (RIGHT_MOTOR_REV_GPIO, OUTPUT);
     
-    for (int i = 0; i < argc; i++) {
+    for (i = 0; i < argc; i++) {
         if (strcmp("+i", argv[i]) == 0) {
             halts |= HALT_ON_IMPACT;
             continue;
