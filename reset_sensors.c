@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     bool reset_range = false;
     bool reset_obstacle = false;
     bool reset_sound = false;
+    bool reset_impact = false;
     
     if (ok_args)
     {
@@ -40,6 +41,10 @@ int main(int argc, char **argv)
                 case 'S':
                     reset_sound = true;
                     break;
+                case 'i':
+                case 'I':
+                    reset_impact = true;
+                    break;
                 default:
                 ok_args = false;
             }
@@ -48,7 +53,7 @@ int main(int argc, char **argv)
 
     if (! ok_args)
     {
-        fprintf(stderr, "Usage: reset_sensors [r|o|s]\n");
+        fprintf(stderr, "Usage: reset_sensors [r|o|s|i]\n");
         fflush(stderr);
         exit(EXIT_FAILURE);
     }
@@ -78,17 +83,22 @@ int main(int argc, char **argv)
     
     if (reset_range)
     {
-        reset_range_value(sensor_values);
+        reset_range(sensor_values);
     }
     
     if (reset_obstacle)
     {
-        reset_obstacle_value(sensor_values);
+        reset_obstacle(sensor_values);
     }
     
     if (reset_sound)
     {
-        reset_sound_value(sensor_values);
+        reset_sound(sensor_values);
+    }
+    
+    if (reset_impact)
+    {
+        reset_impact(sensor_values);
     }
     
     /**

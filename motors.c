@@ -170,22 +170,34 @@ int execute_motion(char *data)
                 break;
             }
 
+            if (sensor_values->impact_val[IDX_FWD] == POSITIVE_VAL
+                && (left_motion=='F' || right_motion=='F'))
+            {
+                break;
+            }
+            
+            if (sensor_values->impact_val[IDX_BACK] == POSITIVE_VAL
+                && (left_motion=='R' || right_motion=='R'))
+            {
+                break;
+            }
+            
             if (left_motion=='F' 
-                && (sensor_values->obstacle_val[OBSTACLE_FWD_INDEX] == POSITIVE_VAL
-                    || sensor_values->obstacle_val[OBSTACLE_RIGHT_INDEX] == POSITIVE_VAL))
+                && (sensor_values->obstacle_val[IDX_FWD] == POSITIVE_VAL
+                    || sensor_values->obstacle_val[IDX_RIGHT] == POSITIVE_VAL))
             {
                 break;
             }
                 
             if (right_motion=='F'
-                && (sensor_values->obstacle_val[OBSTACLE_FWD_INDEX] == POSITIVE_VAL
-                    || sensor_values->obstacle_val[OBSTACLE_LEFT_INDEX] == POSITIVE_VAL))
+                && (sensor_values->obstacle_val[IDX_FWD] == POSITIVE_VAL
+                    || sensor_values->obstacle_val[IDX_LEFT] == POSITIVE_VAL))
             {
                 break;
             }
 
             if ((left_motion=='R' || right_motion=='R')
-                && sensor_values->obstacle_val[OBSTACLE_BACK_INDEX] == POSITIVE_VAL)
+                && sensor_values->obstacle_val[IDX_BACK] == POSITIVE_VAL)
             {
                 break;
             }

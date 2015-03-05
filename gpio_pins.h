@@ -11,7 +11,7 @@
 //      5V Power                        04  Red
 //      SCL1 I2C                 3      05  --
 //      Ground                          06  Brown
-#define SOUND_GPIO               4  //  07  White
+//                               4  //  07  White   <-- AVAIL
 //      UART0_TXD               14      08  Yellow
 //      Ground                          09  Black
 //      UART0_RXD               15      10  Green
@@ -36,12 +36,12 @@
 #define RANGE_ECHO_GPIO          5  //  29  Gray
 //      Ground                          30  Black
 #define RANGE_TRIGGER_GPIO       6  //  31  Purple
-//                              12  //  32  Blue    <-- AVAIL
-//                              13  //  33  Green   <-- AVAIL
+#define IMPACT_F_GPIO           12  //  32  Blue
+#define IMPACT_B_GPIO           13  //  33  Green
 //      Ground                          34  Black
 #define OBSTACLE_B_GPIO         19  //  35  Blue
 #define OBSTACLE_F_GPIO         16  //  36  Purple
 #define OBSTACLE_L_GPIO         26  //  37  Green
 #define OBSTACLE_R_GPIO         20  //  38  Gray
 //      Ground                          39  Black
-//                              21  //  40  White   <-- AVAIL
+#define SOUND_GPIO              21  //  40  White

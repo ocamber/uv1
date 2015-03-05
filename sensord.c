@@ -29,8 +29,10 @@ void obstacle_f_handler(void);
 void obstacle_l_handler(void);
 void obstacle_r_handler(void);
 void obstacle_b_handler(void);
-void set_obstacle_indicator(int);
 void sound_handler(void);
+void impact_f_handler(void);
+void impact_b_handler(void);
+void set_positive(char, char *, char *, int);
 
 static struct timespec echo_start;      // Start time of range echo signal 
         // Rangefinder sets pin HIGH for the time it took the pulse to leave and return as echo
@@ -100,6 +102,8 @@ int main(void) {
 
     pinMode (OBSTACLE_B_GPIO, INPUT);
     pinMode (OBSTACLE_F_GPIO, INPUT);
+    pinMode (IMPACT_B_GPIO, INPUT);
+    pinMode (IMPACT_F_GPIO, INPUT);
     pinMode (OBSTACLE_L_GPIO, INPUT);
     pinMode (OBSTACLE_R_GPIO, INPUT);
     pinMode (SOUND_GPIO, INPUT);
@@ -117,6 +121,8 @@ int main(void) {
     // GPIO signal handlers
 
     wiringPiISR(RANGE_ECHO_GPIO, INT_EDGE_BOTH, &range_echo_handler);
+    wiringPiISR(IMPACT_F_GPIO, INT_EDGE_RISING, &impact_f_handler);
+    wiringPiISR(IMPACT_B_GPIO, INT_EDGE_RISING, &impact_b_handler);
     wiringPiISR(OBSTACLE_F_GPIO, INT_EDGE_FALLING, &obstacle_f_handler);
     wiringPiISR(OBSTACLE_B_GPIO, INT_EDGE_FALLING, &obstacle_b_handler);
     wiringPiISR(OBSTACLE_L_GPIO, INT_EDGE_FALLING, &obstacle_l_handler);
@@ -138,7 +144,7 @@ int main(void) {
     inter_pulse_interval.tv_nsec = 200000000L - (pulse_width.tv_nsec + max_echo_time.tv_nsec);
 
     while(!TERMINATE_SIGNAL_RECEIVED) {
-        sensor_values->range = NO_RANGE_INDICATOR;
+        sensor_values->range_indic = NO_RANGE_INDICATOR;
         // Send 10 usec pulse
         digitalWrite(RANGE_TRIGGER_GPIO, HIGH);
         nanosleep(&pulse_width, (struct timespec *)NULL);
@@ -152,7 +158,7 @@ int main(void) {
             sensor_values->range_val[0] = '9';   // Hundreds
             sensor_values->range_val[1] = '9';   // Tens
             sensor_values->range_val[2] = '9';   // Ones
-            sensor_values->range = RANGE_INDICATOR;
+            sensor_values->range_indic = RANGE_INDICATOR;
             write_sensor_file(sensor_values);
         }
         
@@ -172,53 +178,60 @@ int main(void) {
     exit(EXIT_SUCCESS);
 }    
 
+void set_positive(char indicator, char *indic_ptr, char *values, int direction) {
+    // If sensor value is already positive, exit here
+    if (*indic_ptr == indicator_val && values[direction] == POSITIVE_VAL) {
+        return;
+    }
+    // Otherwise update shared memory and write file
+    *indic_ptr = indicator;
+    values[direction] = POSITIVE_VAL; 
+    write_sensor_file(sensor_values);
+}
 
-void obstacle_l_handler() {
-    set_obstacle_indicator(OBSTACLE_LEFT_INDEX);
+void impact_f_handler() {
+    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, &sensor_values->impact_val, IDX_FWD);
+}
+
+void impact_b_handler() {
+    set_positive(IMPACT_INDICATOR, &sensor_values->impact_indic, &sensor_values->impact_val, IDX_BACK);
 }
 
 void obstacle_f_handler() {
-    set_obstacle_indicator(OBSTACLE_FWD_INDEX);
-}
-
-void obstacle_r_handler() {
-    set_obstacle_indicator(OBSTACLE_RIGHT_INDEX);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_FWD);
 }
 
 void obstacle_b_handler() {
-    set_obstacle_indicator(OBSTACLE_BACK_INDEX);
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_BACK);
 }
 
-void set_obstacle_indicator(int obstIndex) {
-    sensor_values->obstacle_val[obstIndex] = POSITIVE_VAL;
-    sensor_values->obstacle = OBSTACLE_INDICATOR;
-    write_sensor_file(sensor_values);
+void obstacle_l_handler() {
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_LEFT);
+}
+
+void obstacle_r_handler() {
+    set_positive(OBSTACLE_INDICATOR, &sensor_values->obstacle_indic, &sensor_values->obstacle_val, IDX_RIGHT);
 }
 
 void sound_handler() {
-    if (sensor_values->sound == SOUND_INDICATOR) {
-        return;         // If a sound was already detected, exit here
-    }
-    sensor_values->sound_val = POSITIVE_VAL;
-    sensor_values->sound = SOUND_INDICATOR;
-    write_sensor_file(sensor_values);
+    set_positive(SOUND_INDICATOR, &sensor_values->sound_indic, &sensor_values->sound_val, 0);
 }
 
 void range_echo_handler() {
-    if (sensor_values->range == RANGE_INDICATOR) {
+    if (sensor_values->range_indic == RANGE_INDICATOR) {
         return;         // If not waiting for measurement, exit here
     }
     
     int pin_value = digitalRead(RANGE_ECHO_GPIO);
     
     // Handle start of echo signal
-    if (sensor_values->range == NO_RANGE_INDICATOR && pin_value == HIGH) {
+    if (sensor_values->range_indic == NO_RANGE_INDICATOR && pin_value == HIGH) {
         clock_gettime(CLOCK_REALTIME, &echo_start);
-        sensor_values->range = RANGE_INDICATOR;
+        sensor_values->range_indic = RANGE_INDICATOR;
         return;
     }
     
-    if ( ! (sensor_values->range == RANGE_INDICATOR && pin_value == LOW) ) {
+    if ( ! (sensor_values->range_indic == RANGE_INDICATOR && pin_value == LOW) ) {
         return;
     }
     
@@ -247,7 +260,7 @@ void range_echo_handler() {
     sensor_values->range_val[0] = '0' + (range / 100);       // Hundreds
     sensor_values->range_val[1] = '0' + ((range / 10) % 10); // Tens
     sensor_values->range_val[2] = '0' + (range % 10);        // Ones
-    sensor_values->range = RANGE_INDICATOR;
+    sensor_values->range_indic = RANGE_INDICATOR;
     write_sensor_file(sensor_values);
 }
 
