@@ -154,7 +154,7 @@ int main(void) {
         nanosleep(&max_echo_time, (struct timespec *)NULL);
         
         // If there was no reading, set range to 999 and write file
-        if (sensor_values->range != RANGE_INDICATOR) {
+        if (sensor_values->range_indic != RANGE_INDICATOR) {
             sensor_values->range_val[0] = '9';   // Hundreds
             sensor_values->range_val[1] = '9';   // Tens
             sensor_values->range_val[2] = '9';   // Ones
@@ -180,7 +180,7 @@ int main(void) {
 
 void set_positive(char indicator, char *indic_ptr, char *values, int direction) {
     // If sensor value is already positive, exit here
-    if (*indic_ptr == indicator_val && values[direction] == POSITIVE_VAL) {
+    if (*indic_ptr == indicator && values[direction] == POSITIVE_VAL) {
         return;
     }
     // Otherwise update shared memory and write file
