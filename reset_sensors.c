@@ -17,10 +17,10 @@ static int shared_memory_id;
 int main(int argc, char **argv)
 {
     bool ok_args = (argc == 2);
-    bool reset_range = false;
-    bool reset_obstacle = false;
-    bool reset_sound = false;
-    bool reset_impact = false;
+    bool range = false;
+    bool obstacle = false;
+    bool sound = false;
+    bool impact = false;
     
     if (ok_args)
     {
@@ -31,19 +31,19 @@ int main(int argc, char **argv)
             switch (c) {
                 case 'r':
                 case 'R':
-                    reset_range = true;
+                    range = true;
                     break;
                 case 'o':
                 case 'O':
-                    reset_obstacle = true;
+                    obstacle = true;
                     break;
                 case 's':
                 case 'S':
-                    reset_sound = true;
+                    sound = true;
                     break;
                 case 'i':
                 case 'I':
-                    reset_impact = true;
+                    impact = true;
                     break;
                 default:
                 ok_args = false;
@@ -81,22 +81,22 @@ int main(int argc, char **argv)
     * Reset values per arg
     */
     
-    if (reset_range)
+    if (range)
     {
         reset_range(sensor_values);
     }
     
-    if (reset_obstacle)
+    if (obstacle)
     {
         reset_obstacle(sensor_values);
     }
     
-    if (reset_sound)
+    if (sound)
     {
         reset_sound(sensor_values);
     }
     
-    if (reset_impact)
+    if (impact)
     {
         reset_impact(sensor_values);
     }
